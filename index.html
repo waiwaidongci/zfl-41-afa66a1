@@ -127,6 +127,102 @@
     .row { display: flex; gap: 7px; flex-wrap: wrap; }
     .row button { flex: 1; min-width: 66px; padding: 7px 8px; font-size: 12px; }
     .empty { color: var(--muted); font-size: 13px; padding: 12px 4px; }
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal[hidden] { display: none; }
+    .modal-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(32, 36, 42, 0.45);
+    }
+    .modal-panel {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      width: min(920px, 100%);
+      max-height: 86vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfaf7;
+    }
+    .modal-body {
+      padding: 16px 18px;
+      overflow: auto;
+    }
+    .modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 12px 18px;
+      border-top: 1px solid var(--line);
+      background: #fbfaf7;
+    }
+    .import-step { display: grid; gap: 14px; }
+    .import-summary {
+      padding: 10px 14px;
+      background: #eef3ea;
+      border: 1px solid #c9d8be;
+      border-radius: 6px;
+      color: #3b5a32;
+      font-size: 13px;
+    }
+    .import-error {
+      padding: 10px 14px;
+      background: #f6e2e0;
+      border: 1px solid #e0b6b1;
+      border-radius: 6px;
+      color: #7d2b25;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+    .preview-wrap {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: auto;
+      max-height: 52vh;
+    }
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .preview-table th, .preview-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    .preview-table th {
+      position: sticky;
+      top: 0;
+      background: #fbfaf7;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .preview-table tbody tr:last-child td { border-bottom: 0; }
+    .preview-table tr.row-invalid { background: #fdf1ef; }
+    .preview-table tr.row-valid { background: #f5faf1; }
+    .status-ok { color: var(--green); font-weight: 600; }
+    .status-err { color: var(--red); font-weight: 600; }
+    .field-err { color: var(--red); }
     @media (max-width: 920px) {
       header { display: block; padding: 18px; }
       main { padding: 16px; }
@@ -142,7 +238,10 @@
       <h1>手工鱼钩弯制工作室</h1>
       <div class="sub">剪料、退火、弯钩、淬火、回火、打磨、验收的批次闭环看板</div>
     </div>
-    <button id="exportBtn" class="secondary">导出 JSON</button>
+    <div class="row">
+      <button id="importBtn" class="warn">导入 JSON</button>
+      <button id="exportBtn" class="secondary">导出 JSON</button>
+    </div>
   </header>
 
   <main>
@@ -180,6 +279,49 @@
       </div>
     </section>
   </main>
+
+  <div id="importModal" class="modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title">批次导入</h2>
+        <button id="closeImport" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <div class="import-step" id="importStep1">
+          <label>选择本地 JSON 文件
+            <input id="importFile" type="file" accept="application/json,.json">
+          </label>
+          <p class="meta">文件内容应为批次数组，每批包含 wire（钢丝规格）、hook（钩型）、qty（数量）、owner（负责人）、stage（工序）、defects（缺陷数量）等字段。</p>
+        </div>
+        <div class="import-step" id="importStep2" hidden>
+          <div id="importSummary" class="import-summary"></div>
+          <div id="importError" class="import-error" hidden></div>
+          <div class="preview-wrap">
+            <table class="preview-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>钢丝规格</th>
+                  <th>钩型</th>
+                  <th>数量</th>
+                  <th>负责人</th>
+                  <th>工序</th>
+                  <th>缺陷</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody id="previewBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelImport" class="secondary">取消</button>
+        <button id="confirmImport" class="good" disabled>确认导入</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const stages = ["剪料", "退火", "弯钩", "淬火", "回火", "打磨", "验收"];
@@ -322,6 +464,155 @@
     window.move = move;
     window.defect = defect;
     window.removeBatch = removeBatch;
+
+    const importModal = document.querySelector("#importModal");
+    const importFile = document.querySelector("#importFile");
+    const importStep1 = document.querySelector("#importStep1");
+    const importStep2 = document.querySelector("#importStep2");
+    const importSummary = document.querySelector("#importSummary");
+    const importError = document.querySelector("#importError");
+    const previewBody = document.querySelector("#previewBody");
+    const confirmImportBtn = document.querySelector("#confirmImport");
+
+    let pendingImport = null;
+
+    function openImport() {
+      pendingImport = null;
+      importFile.value = "";
+      importStep1.hidden = false;
+      importStep2.hidden = true;
+      importError.hidden = true;
+      confirmImportBtn.disabled = true;
+      importModal.hidden = false;
+    }
+
+    function closeImport() {
+      importModal.hidden = true;
+    }
+
+    function validateBatch(item, index) {
+      const errors = [];
+      if (!item || typeof item !== "object") {
+        return { valid: false, errors: ["不是有效的对象"] };
+      }
+      if (!item.wire || typeof item.wire !== "string" || !item.wire.trim()) {
+        errors.push("钢丝规格不能为空");
+      }
+      if (!item.hook || typeof item.hook !== "string" || !item.hook.trim()) {
+        errors.push("钩型不能为空");
+      }
+      const qty = Number(item.qty);
+      if (!Number.isFinite(qty) || qty <= 0 || !Number.isInteger(qty)) {
+        errors.push("数量必须为正整数");
+      }
+      if (!item.owner || typeof item.owner !== "string" || !item.owner.trim()) {
+        errors.push("负责人不能为空");
+      }
+      if (!item.stage || typeof item.stage !== "string" || !stages.includes(item.stage)) {
+        errors.push(`工序必须为：${stages.join("、")}`);
+      }
+      const defects = Number(item.defects);
+      if (!Number.isFinite(defects) || defects < 0 || !Number.isInteger(defects)) {
+        errors.push("缺陷数量必须为非负整数");
+      }
+      return { valid: errors.length === 0, errors };
+    }
+
+    function cell(text, hasErr) {
+      if (hasErr) {
+        return `<td class="field-err">${text ?? ""}</td>`;
+      }
+      return `<td>${text ?? ""}</td>`;
+    }
+
+    function renderPreview(list, results) {
+      const validCount = results.filter(r => r.valid).length;
+      const invalidCount = results.length - validCount;
+      importSummary.textContent = `共 ${results.length} 条记录，有效 ${validCount} 条，无效 ${invalidCount} 条。`;
+      if (invalidCount > 0) {
+        importError.hidden = false;
+        importError.textContent = results
+          .map((r, i) => r.valid ? null : `第 ${i + 1} 行：${r.errors.join("；")}`)
+          .filter(Boolean)
+          .join("\n");
+        confirmImportBtn.disabled = true;
+      } else {
+        importError.hidden = true;
+        confirmImportBtn.disabled = false;
+      }
+      previewBody.innerHTML = list.map((item, i) => {
+        const r = results[i];
+        const rowClass = r.valid ? "row-valid" : "row-invalid";
+        const status = r.valid
+          ? `<span class="status-ok">有效</span>`
+          : `<span class="status-err">${r.errors.join("；")}</span>`;
+        return `<tr class="${rowClass}">
+          <td>${i + 1}</td>
+          ${cell(item?.wire, !r.valid && r.errors.some(e => e.includes("钢丝")))}
+          ${cell(item?.hook, !r.valid && r.errors.some(e => e.includes("钩型")))}
+          ${cell(item?.qty, !r.valid && r.errors.some(e => e.includes("数量")))}
+          ${cell(item?.owner, !r.valid && r.errors.some(e => e.includes("负责人")))}
+          ${cell(item?.stage, !r.valid && r.errors.some(e => e.includes("工序")))}
+          ${cell(item?.defects, !r.valid && r.errors.some(e => e.includes("缺陷")))}
+          <td>${status}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    importFile.addEventListener("change", async () => {
+      const file = importFile.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!Array.isArray(data)) {
+          throw new Error("JSON 内容必须是数组");
+        }
+        const results = data.map((item, i) => validateBatch(item, i));
+        pendingImport = data;
+        importStep1.hidden = true;
+        importStep2.hidden = false;
+        renderPreview(data, results);
+      } catch (err) {
+        importStep1.hidden = false;
+        importStep2.hidden = true;
+        importError.hidden = false;
+        importError.textContent = `解析失败：${err.message}`;
+        pendingImport = null;
+        confirmImportBtn.disabled = true;
+      }
+    });
+
+    confirmImportBtn.addEventListener("click", () => {
+      if (!pendingImport) return;
+      const validItems = pendingImport
+        .map(item => validateBatch(item))
+        .map((r, i) => r.valid ? pendingImport[i] : null)
+        .filter(Boolean);
+      const now = new Date().toLocaleString();
+      validItems.forEach(item => {
+        batches.unshift({
+          id: crypto.randomUUID(),
+          wire: String(item.wire).trim(),
+          hook: String(item.hook).trim(),
+          qty: Number(item.qty),
+          owner: String(item.owner).trim(),
+          stage: item.stage,
+          defects: Number(item.defects || 0),
+          note: item.note ? String(item.note) : "",
+          history: [`${now} 导入创建批次`]
+        });
+      });
+      save();
+      render();
+      closeImport();
+    });
+
+    document.querySelector("#importBtn").addEventListener("click", openImport);
+    document.querySelector("#closeImport").addEventListener("click", closeImport);
+    document.querySelector("#cancelImport").addEventListener("click", closeImport);
+    document.querySelector(".modal-mask").addEventListener("click", closeImport);
+
     save();
     render();
   </script>
