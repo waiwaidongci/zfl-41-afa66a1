@@ -987,6 +987,72 @@
     .card.pending-recheck:hover {
       box-shadow: 0 4px 12px rgba(183, 129, 47, 0.15);
     }
+    .template-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: grid;
+      gap: 10px;
+      border-left: 4px solid var(--blue);
+    }
+    .template-card .template-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .template-card .template-head strong {
+      font-size: 16px;
+    }
+    .template-card .template-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .template-card .template-field {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-right: 4px;
+      margin-top: 4px;
+    }
+    .template-card .template-field.wire {
+      background: #e6eef1;
+      color: var(--blue);
+    }
+    .template-card .template-field.owner {
+      background: #eef3ea;
+      color: var(--green);
+    }
+    .template-card .template-field.threshold {
+      background: #fff3d6;
+      color: var(--gold);
+    }
+    .template-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .template-applied-hint {
+      padding: 6px 10px;
+      background: #eef3ea;
+      border: 1px solid #c9d8be;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #3b5a32;
+    }
+    .threshold-warn {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      background: #f6e2e0;
+      color: var(--red);
+      border-radius: 10px;
+      font-weight: 600;
+    }
     @media (max-width: 920px) {
       header { display: block; padding: 18px; }
       main { padding: 16px; }
@@ -1023,6 +1089,7 @@
       <button class="tab-btn active" data-tab="batches">批次看板</button>
       <button class="tab-btn" data-tab="orders">订单排产</button>
       <button class="tab-btn" data-tab="wire">钢丝库存台账</button>
+      <button class="tab-btn" data-tab="templates">工艺模板库</button>
     </div>
 
     <div id="batchesPanel" class="tab-panel">
@@ -1044,6 +1111,8 @@
     <section class="layout">
       <form id="batchForm" class="form">
         <h2>新增鱼钩批次</h2>
+        <label>选择工艺模板（可选）<select id="templateSelect"><option value="">不使用模板</option></select></label>
+        <div id="templateAppliedHint" class="template-applied-hint" hidden></div>
         <label>钢丝规格<select name="wire" id="batchWireSelect" required></select></label>
         <div id="batchWireHint" class="wire-batch-hint" hidden></div>
         <label>目标钩型<input name="hook" required placeholder="袖钩 4 号"></label>
@@ -1112,6 +1181,32 @@
             <h2 class="panel-title">库存变动流水</h2>
           </div>
           <div id="wireFlowList" class="wire-flow-list"></div>
+        </div>
+      </section>
+    </div>
+
+    <div id="templatesPanel" class="tab-panel" hidden>
+      <section id="templateStats" class="stats" style="grid-template-columns: repeat(3, minmax(140px, 1fr));"></section>
+
+      <section class="wire-layout">
+        <form id="templateForm" class="wire-form">
+          <h2 id="templateFormTitle">新建工艺模板</h2>
+          <div class="wire-form-grid">
+            <label class="full">钩型名称<input name="hookName" required placeholder="袖钩 4 号"></label>
+            <label class="full">默认钢丝规格<input name="wire" required placeholder="0.8mm 蓝火钢丝"></label>
+            <label>建议负责人<input name="owner" placeholder="阿青"></label>
+            <label>标准缺陷阈值<input name="defectThreshold" type="number" min="0" value="5" placeholder="5"></label>
+            <label class="full">建议工序备注<textarea name="processNote" placeholder="退火火候、弯曲角度、打磨要求等"></textarea></label>
+          </div>
+          <button class="good" type="submit" id="templateFormSubmitBtn">保存模板</button>
+          <button class="secondary" type="button" id="templateFormCancelBtn" hidden>取消编辑</button>
+        </form>
+
+        <div>
+          <div class="wire-section-title">
+            <h2 class="panel-title">模板列表</h2>
+          </div>
+          <div id="templateList" class="wire-list"></div>
         </div>
       </section>
     </div>
@@ -1271,6 +1366,10 @@
             <div class="detail-item" style="grid-column: 1 / -1;">
               <label>所属订单</label>
               <div class="value" id="detailOrder"></div>
+            </div>
+            <div class="detail-item" style="grid-column: 1 / -1;" id="detailTemplateItem" hidden>
+              <label>工艺模板</label>
+              <div class="value" id="detailTemplate"></div>
             </div>
           </div>
         </div>
@@ -1476,6 +1575,7 @@
     const wireStorageKey = "zfl41WireStock";
     const wireFlowStorageKey = "zfl41WireFlow";
     const inspectionStorageKey = "zfl41Inspections";
+    const templateStorageKey = "zfl41Templates";
     const inspectionSeed = [];
     const defectTypeOptions = ["外观不良", "尺寸偏差", "硬度不足", "弹性不够", "钩尖不锋利", "镀层问题", "其他"];
     const conclusionOptions = ["合格通过", "返工处理", "报废处理", "条件放行", "待复检"];
@@ -1490,12 +1590,19 @@
       { id: crypto.randomUUID(), wireId: wireSeed[1].id, spec: wireSeed[1].spec, type: "in", qty: 1200, balance: 1200, reason: "初始入库", time: new Date().toISOString() },
       { id: crypto.randomUUID(), wireId: wireSeed[2].id, spec: wireSeed[2].spec, type: "in", qty: 80, balance: 80, reason: "初始入库", time: new Date().toISOString() }
     ];
+    const templateSeed = [
+      { id: crypto.randomUUID(), hookName: "袖钩 4 号", wire: "0.6mm 软调钢丝", owner: "小孟", defectThreshold: 3, processNote: "退火温度 650°C，弯嘴角度 45°，打磨后需做样钩 10 枚抽检", createdAt: new Date().toISOString() },
+      { id: crypto.randomUUID(), hookName: "溪流倒刺 6 号", wire: "0.8mm 蓝火钢丝", owner: "林师傅", defectThreshold: 5, processNote: "退火温度 700°C，弯嘴角度偏小的需单独复查", createdAt: new Date().toISOString() },
+      { id: crypto.randomUUID(), hookName: "海钓长柄 2 号", wire: "1.0mm 高碳钢丝", owner: "阿青", defectThreshold: 2, processNote: "回火后抽检 12 枚，硬度需达标", createdAt: new Date().toISOString() }
+    ];
     let wireStock = JSON.parse(localStorage.getItem(wireStorageKey) || "null") || wireSeed;
     let wireFlow = JSON.parse(localStorage.getItem(wireFlowStorageKey) || "null") || wireFlowSeed;
     let inspections = JSON.parse(localStorage.getItem(inspectionStorageKey) || "null") || inspectionSeed;
     let batches = JSON.parse(localStorage.getItem(storageKey) || "null") || seed;
     let orders = JSON.parse(localStorage.getItem(ordersStorageKey) || "null") || orderSeed;
     batches.forEach(b => { if (b.orderId === undefined) b.orderId = null; });
+    batches.forEach(b => { if (b.templateId === undefined) b.templateId = null; });
+    let templates = JSON.parse(localStorage.getItem(templateStorageKey) || "null") || templateSeed;
     let currentOrderId = null;
     let currentTab = "batches";
     let currentWireId = null;
@@ -1520,6 +1627,15 @@
     const batchWireHint = document.querySelector("#batchWireHint");
     const batchQtyInput = document.querySelector("#batchQtyInput");
     const batchWireStockWarning = document.querySelector("#batchWireStockWarning");
+    const templateSelect = document.querySelector("#templateSelect");
+    const templateAppliedHintEl = document.querySelector("#templateAppliedHint");
+    const templateForm = document.querySelector("#templateForm");
+    const templateFormTitle = document.querySelector("#templateFormTitle");
+    const templateFormSubmitBtn = document.querySelector("#templateFormSubmitBtn");
+    const templateFormCancelBtn = document.querySelector("#templateFormCancelBtn");
+    const templateStatsEl = document.querySelector("#templateStats");
+    const templateListEl = document.querySelector("#templateList");
+    const templatesPanel = document.querySelector("#templatesPanel");
     const wireAdjustModal = document.querySelector("#wireAdjustModal");
     const wireAdjustTitle = document.querySelector("#wireAdjustTitle");
     const wireAdjustSpec = document.querySelector("#wireAdjustSpec");
@@ -1546,6 +1662,20 @@
 
     function saveInspections() {
       localStorage.setItem(inspectionStorageKey, JSON.stringify(inspections));
+    }
+
+    function saveTemplates() {
+      localStorage.setItem(templateStorageKey, JSON.stringify(templates));
+    }
+
+    function getBatchThresholdWarning(batch) {
+      if (!batch.templateId) return null;
+      const tpl = templates.find(t => t.id === batch.templateId);
+      if (!tpl || !tpl.defectThreshold) return null;
+      if (batch.defects > tpl.defectThreshold) {
+        return { threshold: tpl.defectThreshold, actual: batch.defects, hookName: tpl.hookName };
+      }
+      return null;
     }
 
     function getBatchInspections(batchId) {
@@ -1712,10 +1842,13 @@
       batchesPanel.hidden = tab !== "batches";
       ordersPanel.hidden = tab !== "orders";
       wirePanel.hidden = tab !== "wire";
+      templatesPanel.hidden = tab !== "templates";
       if (tab === "orders") {
         renderOrders();
       } else if (tab === "wire") {
         renderWire();
+      } else if (tab === "templates") {
+        renderTemplates();
       } else {
         render();
       }
@@ -1766,6 +1899,10 @@
       save();
       render();
       if (currentBatchId === id) openDetail(id);
+      const warn = getBatchThresholdWarning(item);
+      if (warn && warn.actual === warn.threshold + 1) {
+        setTimeout(() => alert(`⚠ 批次「${item.hook}」缺陷数（${warn.actual}）已超过模板阈值（${warn.threshold}），请关注质量！`), 100);
+      }
     }
 
     function removeBatch(id) {
@@ -1790,11 +1927,14 @@
             const recheckStatus = getBatchRecheckStatus(item.id);
             const pendingRecheck = recheckStatus === "pending";
             const recheckBadge = pendingRecheck ? `<div><span class="recheck-badge">待复检</span></div>` : "";
+            const thresholdWarn = getBatchThresholdWarning(item);
+            const thresholdBadge = thresholdWarn ? `<div><span class="threshold-warn">超阈值 ${thresholdWarn.actual}/${thresholdWarn.threshold}</span></div>` : "";
             const cardClass = `card card-clickable${pendingRecheck ? " pending-recheck" : ""}`;
             return `<article class="${cardClass}" onclick="openDetail('${item.id}')">
             <strong>${item.hook}</strong>
             ${orderBadge}
             ${recheckBadge}
+            ${thresholdBadge}
             <div class="meta">钢丝：${item.wire}<br>数量：${item.qty} 枚 · 负责人：${item.owner}<br>缺陷：${item.defects} · 备注：${item.note || "无"}</div>
             <div class="meta">最近：${item.history[item.history.length - 1] || "创建"}</div>
             <div class="row">
@@ -2052,6 +2192,115 @@
       renderWireFlow();
     }
 
+    function renderTemplateStats() {
+      const total = templates.length;
+      const hookNames = new Set(templates.map(t => t.hookName));
+      const avgThreshold = templates.length ? (templates.reduce((s, t) => s + Number(t.defectThreshold || 0), 0) / templates.length).toFixed(1) : 0;
+      templateStatsEl.innerHTML = `
+        <div class="stat"><span>工艺模板</span><b>${total}</b><span class="meta">个模板</span></div>
+        <div class="stat"><span>覆盖钩型</span><b>${hookNames.size}</b><span class="meta">种钩型</span></div>
+        <div class="stat"><span>平均缺陷阈值</span><b>${avgThreshold}</b><span class="meta">枚</span></div>
+      `;
+    }
+
+    function renderTemplateList() {
+      if (templates.length === 0) {
+        templateListEl.innerHTML = `<div class="template-empty">暂无工艺模板，点击左侧表单创建</div>`;
+        return;
+      }
+      templateListEl.innerHTML = templates.map(t => `
+        <div class="template-card">
+          <div class="template-head">
+            <div>
+              <strong>${t.hookName}</strong>
+              <div class="template-meta">${t.processNote || "无工序备注"}</div>
+            </div>
+          </div>
+          <div>
+            <span class="template-field wire">${t.wire}</span>
+            <span class="template-field owner">${t.owner || "未指定"}</span>
+            <span class="template-field threshold">阈值 ${t.defectThreshold || 0}</span>
+          </div>
+          <div class="wire-actions">
+            <button class="good" onclick="editTemplate('${t.id}')">编辑</button>
+            <button class="secondary" onclick="applyTemplateToForm('${t.id}')">应用到新增批次</button>
+            <button class="danger" onclick="deleteTemplate('${t.id}')">删除</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderTemplates() {
+      renderTemplateStats();
+      renderTemplateList();
+    }
+
+    function refreshTemplateSelect() {
+      const current = templateSelect.value;
+      templateSelect.innerHTML = `<option value="">不使用模板</option>` +
+        templates.map(t => `<option value="${t.id}">${t.hookName}</option>`).join("");
+      if (templates.find(t => t.id === current)) templateSelect.value = current;
+    }
+
+    function applyTemplateToForm(templateId) {
+      const tpl = templates.find(t => t.id === templateId);
+      if (!tpl) return;
+      if (tpl.wire) {
+        const spec = wireStock.find(w => w.spec === tpl.wire);
+        if (spec) {
+          batchWireSelect.value = tpl.wire;
+          updateBatchWireHint();
+        }
+      }
+      form.hook.value = tpl.hookName || "";
+      form.owner.value = tpl.owner || "";
+      form.defects.value = tpl.defectThreshold || 0;
+      if (tpl.processNote) form.note.value = tpl.processNote;
+      refreshTemplateSelect();
+      templateSelect.value = tpl.id;
+      templateAppliedHintEl.hidden = false;
+      templateAppliedHintEl.innerHTML = `已应用模板「<strong>${tpl.hookName}</strong>」：钢丝 ${tpl.wire}，负责人 ${tpl.owner || "未指定"}，缺陷阈值 ${tpl.defectThreshold || 0} 枚${tpl.processNote ? "，已填充工序备注" : ""}`;
+      switchTab("batches");
+    }
+
+    function editTemplate(templateId) {
+      const tpl = templates.find(t => t.id === templateId);
+      if (!tpl) return;
+      currentEditTemplateId = templateId;
+      templateFormTitle.textContent = `编辑模板 · ${tpl.hookName}`;
+      templateFormSubmitBtn.textContent = "更新模板";
+      templateFormCancelBtn.hidden = false;
+      templateForm.hookName.value = tpl.hookName || "";
+      templateForm.wire.value = tpl.wire || "";
+      templateForm.owner.value = tpl.owner || "";
+      templateForm.defectThreshold.value = tpl.defectThreshold || 0;
+      templateForm.processNote.value = tpl.processNote || "";
+    }
+
+    function cancelEditTemplate() {
+      currentEditTemplateId = null;
+      templateFormTitle.textContent = "新建工艺模板";
+      templateFormSubmitBtn.textContent = "保存模板";
+      templateFormCancelBtn.hidden = true;
+      templateForm.reset();
+      templateForm.defectThreshold.value = 5;
+    }
+
+    function deleteTemplate(templateId) {
+      const tpl = templates.find(t => t.id === templateId);
+      if (!tpl) return;
+      if (!confirm(`确认删除模板「${tpl.hookName}」？`)) return;
+      templates = templates.filter(t => t.id !== templateId);
+      if (currentEditTemplateId === templateId) cancelEditTemplate();
+      saveTemplates();
+      renderTemplates();
+      refreshTemplateSelect();
+    }
+
+    window.editTemplate = editTemplate;
+    window.deleteTemplate = deleteTemplate;
+    window.applyTemplateToForm = applyTemplateToForm;
+
     function openWireAdjust(wireId, defaultType) {
       const wire = wireStock.find(w => w.id === wireId);
       if (!wire) return;
@@ -2183,12 +2432,15 @@
         stage: data.stage,
         defects: Number(data.defects || 0),
         note: data.note,
-        history: [`${new Date().toLocaleString()} 创建批次${wire ? `，领用钢丝 ${estimated} ${wire.unit}` : ""}`],
-        orderId: null
+        history: [`${new Date().toLocaleString()} 创建批次${wire ? `，领用钢丝 ${estimated} ${wire.unit}` : ""}${templateSelect.value ? `，使用模板「${templates.find(t => t.id === templateSelect.value)?.hookName || ""}」` : ""}`],
+        orderId: null,
+        templateId: templateSelect.value || null
       });
       form.reset();
       form.qty.value = 80;
       form.defects.value = 0;
+      templateSelect.value = "";
+      templateAppliedHintEl.hidden = true;
       save();
       render();
       refreshBatchWireOptions();
@@ -2202,6 +2454,72 @@
       orderForm.targetQty.value = 500;
       renderOrders();
     });
+
+    templateSelect.addEventListener("change", () => {
+      const tplId = templateSelect.value;
+      if (!tplId) {
+        templateAppliedHintEl.hidden = true;
+        return;
+      }
+      const tpl = templates.find(t => t.id === tplId);
+      if (!tpl) {
+        templateAppliedHintEl.hidden = true;
+        return;
+      }
+      if (tpl.wire) {
+        const spec = wireStock.find(w => w.spec === tpl.wire);
+        if (spec) {
+          batchWireSelect.value = tpl.wire;
+          updateBatchWireHint();
+        }
+      }
+      form.hook.value = tpl.hookName || "";
+      form.owner.value = tpl.owner || "";
+      form.defects.value = tpl.defectThreshold || 0;
+      if (tpl.processNote) form.note.value = tpl.processNote;
+      templateAppliedHintEl.hidden = false;
+      templateAppliedHintEl.innerHTML = `已应用模板「<strong>${tpl.hookName}</strong>」：钢丝 ${tpl.wire}，负责人 ${tpl.owner || "未指定"}，缺陷阈值 ${tpl.defectThreshold || 0} 枚${tpl.processNote ? "，已填充工序备注" : ""}`;
+    });
+
+    templateForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(templateForm).entries());
+      const hookName = data.hookName.trim();
+      const wire = data.wire.trim();
+      const owner = data.owner.trim();
+      const defectThreshold = Number(data.defectThreshold) || 0;
+      const processNote = data.processNote || "";
+      if (!hookName) { alert("钩型名称不能为空"); return; }
+      if (!wire) { alert("默认钢丝规格不能为空"); return; }
+      if (currentEditTemplateId) {
+        const tpl = templates.find(t => t.id === currentEditTemplateId);
+        if (tpl) {
+          tpl.hookName = hookName;
+          tpl.wire = wire;
+          tpl.owner = owner;
+          tpl.defectThreshold = defectThreshold;
+          tpl.processNote = processNote;
+        }
+        cancelEditTemplate();
+      } else {
+        templates.unshift({
+          id: crypto.randomUUID(),
+          hookName,
+          wire,
+          owner,
+          defectThreshold,
+          processNote,
+          createdAt: new Date().toISOString()
+        });
+        templateForm.reset();
+        templateForm.defectThreshold.value = 5;
+      }
+      saveTemplates();
+      renderTemplates();
+      refreshTemplateSelect();
+    });
+
+    templateFormCancelBtn.addEventListener("click", cancelEditTemplate);
 
     [hookFilter, ownerFilter, stageFilter].forEach(el => el.addEventListener("change", render));
     document.querySelector("#resetFilters").addEventListener("click", () => {
@@ -2217,8 +2535,9 @@
         wireStock: wireStock,
         wireFlow: wireFlow,
         inspections: inspections,
+        templates: templates,
         exportTime: new Date().toISOString(),
-        version: "4.0"
+        version: "5.0"
       };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
@@ -2245,6 +2564,8 @@
     const detailDefectRate = document.querySelector("#detailDefectRate");
     const detailNote = document.querySelector("#detailNote");
     const detailOrder = document.querySelector("#detailOrder");
+    const detailTemplateItem = document.querySelector("#detailTemplateItem");
+    const detailTemplate = document.querySelector("#detailTemplate");
     const detailNoteInput = document.querySelector("#detailNoteInput");
     const detailHistory = document.querySelector("#detailHistory");
     const noteView = document.querySelector("#noteView");
@@ -2270,6 +2591,7 @@
 
     let currentBatchId = null;
     let currentInspectionId = null;
+    let currentEditTemplateId = null;
 
     function openDetail(id) {
       const item = batches.find(b => b.id === id);
@@ -2285,6 +2607,17 @@
         detailOrder.innerHTML = `<span class="order-badge" style="cursor: pointer;" onclick="event.stopPropagation(); closeDetail(); setTimeout(() => openOrderDetail('${order.id}'), 350);">${order.customer} · ${order.hook}</span>`;
       } else {
         detailOrder.textContent = "未分配订单";
+      }
+      const batchTpl = item.templateId ? templates.find(t => t.id === item.templateId) : null;
+      if (batchTpl) {
+        detailTemplateItem.hidden = false;
+        const thresholdWarn = getBatchThresholdWarning(item);
+        const thresholdHtml = thresholdWarn
+          ? ` <span class="threshold-warn">缺陷超阈值 ${thresholdWarn.actual}/${thresholdWarn.threshold}</span>`
+          : ` <span style="color: var(--green); font-size: 12px;">缺陷在阈值内 (${item.defects}/${batchTpl.defectThreshold})</span>`;
+        detailTemplate.innerHTML = `${batchTpl.hookName}（钢丝 ${batchTpl.wire}，负责人 ${batchTpl.owner || "未指定"}）${thresholdHtml}`;
+      } else {
+        detailTemplateItem.hidden = true;
       }
       detailStage.textContent = item.stage;
       const currentStageIndex = stages.indexOf(item.stage);
@@ -2901,6 +3234,7 @@
           const hasWireStock = data.wireStock && Array.isArray(data.wireStock);
           const hasWireFlow = data.wireFlow && Array.isArray(data.wireFlow);
           const hasInspections = data.inspections && Array.isArray(data.inspections);
+          const hasTemplates = data.templates && Array.isArray(data.templates);
           if (hasBatches || hasOrders || hasWireStock || hasWireFlow) {
             const batchResults = hasBatches ? data.batches.map((item, i) => validateBatch(item, i)) : [];
             const orderResults = hasOrders ? data.orders.map((item, i) => validateOrder(item, i)) : [];
@@ -2912,6 +3246,7 @@
             if (hasWireStock) parts.push(`钢丝库存 ${data.wireStock.length} 条`);
             if (hasWireFlow) parts.push(`库存流水 ${data.wireFlow.length} 条`);
             if (hasInspections) parts.push(`抽检记录 ${data.inspections.length} 条`);
+            if (hasTemplates) parts.push(`工艺模板 ${data.templates.length} 条`);
             importSummary.textContent = `检测到数据：${parts.join("，")}。将合并导入所有数据。`;
             const hasErrors = batchResults.some(r => !r.valid) || orderResults.some(r => !r.valid);
             if (hasErrors) {
@@ -2925,7 +3260,7 @@
               importError.hidden = true;
               confirmImportBtn.disabled = false;
             }
-            pendingImport = { batches: data.batches || [], orders: data.orders || [], wireStock: data.wireStock || [], wireFlow: data.wireFlow || [], inspections: data.inspections || [] };
+            pendingImport = { batches: data.batches || [], orders: data.orders || [], wireStock: data.wireStock || [], wireFlow: data.wireFlow || [], inspections: data.inspections || [], templates: data.templates || [] };
             pendingImportType = "full";
             previewBody.innerHTML = "";
             importStep1.hidden = true;
@@ -2992,7 +3327,8 @@
             defects: Number(item.defects || 0),
             note: item.note ? String(item.note) : "",
             history: item.history && Array.isArray(item.history) ? item.history : [`${now} 导入创建批次`],
-            orderId: item.orderId || null
+            orderId: item.orderId || null,
+            templateId: item.templateId || null
           });
         });
         validOrders.forEach(item => {
@@ -3058,15 +3394,34 @@
             });
           });
         }
+        if (pendingImport.templates && Array.isArray(pendingImport.templates)) {
+          pendingImport.templates.forEach(item => {
+            const existing = templates.find(t => t.hookName === String(item.hookName).trim());
+            if (!existing) {
+              templates.push({
+                id: item.id || crypto.randomUUID(),
+                hookName: String(item.hookName || "").trim(),
+                wire: String(item.wire || "").trim(),
+                owner: String(item.owner || "").trim(),
+                defectThreshold: Number(item.defectThreshold || 0),
+                processNote: item.processNote ? String(item.processNote) : "",
+                createdAt: item.createdAt || new Date().toISOString()
+              });
+            }
+          });
+        }
         save();
         saveOrders();
         saveWire();
         saveWireFlow();
         saveInspections();
+        saveTemplates();
         if (currentTab === "batches") render();
         else if (currentTab === "orders") renderOrders();
         else if (currentTab === "wire") renderWire();
+        else if (currentTab === "templates") renderTemplates();
         refreshBatchWireOptions();
+        refreshTemplateSelect();
       } else if (pendingImportType === "orders") {
         const validItems = pendingImport
           .map(item => validateOrder(item))
@@ -3102,7 +3457,8 @@
             defects: Number(item.defects || 0),
             note: item.note ? String(item.note) : "",
             history: item.history && Array.isArray(item.history) ? item.history : [`${now} 导入创建批次`],
-            orderId: item.orderId || null
+            orderId: item.orderId || null,
+            templateId: item.templateId || null
           });
         });
         save();
@@ -3143,7 +3499,9 @@
     saveWire();
     saveWireFlow();
     saveInspections();
+    saveTemplates();
     refreshBatchWireOptions();
+    refreshTemplateSelect();
     render();
   </script>
 </body>
