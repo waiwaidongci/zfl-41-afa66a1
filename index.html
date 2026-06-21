@@ -830,6 +830,163 @@
     .wire-batch-hint strong {
       color: var(--ink);
     }
+    .inspection-summary {
+      display: grid;
+      gap: 12px;
+    }
+    .inspection-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .inspection-stat {
+      padding: 12px;
+      background: #fbfaf7;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      text-align: center;
+    }
+    .inspection-stat .num {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--blue);
+      line-height: 1;
+    }
+    .inspection-stat .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .inspection-stat.pending .num {
+      color: var(--gold);
+    }
+    .inspection-stat.passed .num {
+      color: var(--green);
+    }
+    .inspection-list {
+      display: grid;
+      gap: 10px;
+      max-height: 280px;
+      overflow: auto;
+    }
+    .inspection-item {
+      padding: 12px;
+      background: #fbfaf7;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      border-left: 3px solid var(--blue);
+    }
+    .inspection-item.pending {
+      border-left-color: var(--gold);
+      background: #fffdf5;
+    }
+    .inspection-item.passed {
+      border-left-color: var(--green);
+      background: #f5faf1;
+    }
+    .inspection-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .inspection-head strong {
+      font-size: 14px;
+    }
+    .inspection-status {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .inspection-status.pending {
+      background: #fff3d6;
+      color: var(--gold);
+    }
+    .inspection-status.passed {
+      background: #eef3ea;
+      color: var(--green);
+    }
+    .inspection-status.not_required {
+      background: #e6eef1;
+      color: var(--blue);
+    }
+    .inspection-meta {
+      display: grid;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .inspection-defects {
+      margin-top: 8px;
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .defect-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      background: #f6e2e0;
+      color: var(--red);
+      border-radius: 10px;
+    }
+    .inspection-empty {
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      background: #fbfaf7;
+      border: 1px dashed var(--line);
+      border-radius: 6px;
+    }
+    .inspection-form {
+      display: grid;
+      gap: 12px;
+    }
+    .inspection-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .inspection-form-grid .full {
+      grid-column: 1 / -1;
+    }
+    .defect-checkboxes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .defect-checkboxes label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .defect-checkboxes input[type="checkbox"] {
+      width: auto;
+      min-width: auto;
+    }
+    .recheck-badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      background: #fff3d6;
+      color: var(--gold);
+      border-radius: 10px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .card.pending-recheck {
+      border-left-color: var(--gold);
+      background: #fffdf5;
+    }
+    .card.pending-recheck:hover {
+      box-shadow: 0 4px 12px rgba(183, 129, 47, 0.15);
+    }
     @media (max-width: 920px) {
       header { display: block; padding: 18px; }
       main { padding: 16px; }
@@ -842,6 +999,9 @@
       .order-form-grid, .wire-form-grid { grid-template-columns: 1fr; }
       .order-detail-grid { grid-template-columns: 1fr; }
       .defect-summary { grid-template-columns: 1fr; }
+      .inspection-stats { grid-template-columns: 1fr; }
+      .inspection-form-grid { grid-template-columns: 1fr; }
+      .defect-checkboxes { grid-template-columns: 1fr; }
       .drawer-head, .drawer-body, .drawer-foot { padding-left: 16px; padding-right: 16px; }
     }
   </style>
@@ -1037,6 +1197,50 @@
     </div>
   </div>
 
+  <div id="inspectionModal" class="modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title" id="inspectionModalTitle">质量抽检</h2>
+        <button id="closeInspectionModal" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <form id="inspectionForm" class="inspection-form">
+          <div class="inspection-form-grid">
+            <label>抽检数量
+              <input name="sampleQty" type="number" min="1" required placeholder="例如：20">
+            </label>
+            <label>缺陷数量
+              <input name="defectQty" type="number" min="0" value="0" placeholder="例如：2">
+            </label>
+            <label class="full">处理结论
+              <select name="conclusion" required>
+                <option value="">请选择处理结论</option>
+              </select>
+            </label>
+            <label class="full">复检状态
+              <select name="recheckStatus" required>
+                <option value="not_required">无需复检</option>
+                <option value="pending">待复检</option>
+                <option value="passed">复检通过</option>
+              </select>
+            </label>
+            <label class="full">缺陷类型（可多选）
+              <div class="defect-checkboxes" id="defectCheckboxes"></div>
+            </label>
+            <label class="full">备注
+              <textarea name="notes" placeholder="抽检详情、缺陷描述、复检要求等"></textarea>
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelInspection" class="secondary">取消</button>
+        <button id="saveInspection" class="good">保存抽检记录</button>
+      </div>
+    </div>
+  </div>
+
   <div id="detailDrawer" class="drawer" hidden>
     <div class="drawer-mask" id="drawerMask"></div>
     <div class="drawer-panel">
@@ -1093,6 +1297,11 @@
           </div>
         </div>
 
+        <div class="detail-section" id="inspectionSection">
+          <h3>质量抽检</h3>
+          <div id="inspectionSummary" class="inspection-summary"></div>
+        </div>
+
         <div class="detail-section">
           <h3>备注</h3>
           <div id="noteView">
@@ -1121,6 +1330,7 @@
         <button id="drawerMoveBack" class="secondary">上一步</button>
         <button id="drawerMoveNext" class="good">下一步</button>
         <button id="drawerDefect" class="warn">缺陷+1</button>
+        <button id="drawerInspection" class="secondary" hidden>质量抽检</button>
         <button id="drawerDelete" class="danger">删除</button>
       </div>
     </div>
@@ -1265,6 +1475,11 @@
     ];
     const wireStorageKey = "zfl41WireStock";
     const wireFlowStorageKey = "zfl41WireFlow";
+    const inspectionStorageKey = "zfl41Inspections";
+    const inspectionSeed = [];
+    const defectTypeOptions = ["外观不良", "尺寸偏差", "硬度不足", "弹性不够", "钩尖不锋利", "镀层问题", "其他"];
+    const conclusionOptions = ["合格通过", "返工处理", "报废处理", "条件放行", "待复检"];
+    const recheckStatusOptions = ["not_required", "pending", "passed"];
     const wireSeed = [
       { id: crypto.randomUUID(), spec: "0.8mm 蓝火钢丝", qty: 2500, unit: "米", safeStock: 500, note: "供应商A，高碳钢", createdAt: new Date().toISOString() },
       { id: crypto.randomUUID(), spec: "1.0mm 高碳钢丝", qty: 1200, unit: "米", safeStock: 300, note: "供应商B，进口材质", createdAt: new Date().toISOString() },
@@ -1277,6 +1492,7 @@
     ];
     let wireStock = JSON.parse(localStorage.getItem(wireStorageKey) || "null") || wireSeed;
     let wireFlow = JSON.parse(localStorage.getItem(wireFlowStorageKey) || "null") || wireFlowSeed;
+    let inspections = JSON.parse(localStorage.getItem(inspectionStorageKey) || "null") || inspectionSeed;
     let batches = JSON.parse(localStorage.getItem(storageKey) || "null") || seed;
     let orders = JSON.parse(localStorage.getItem(ordersStorageKey) || "null") || orderSeed;
     batches.forEach(b => { if (b.orderId === undefined) b.orderId = null; });
@@ -1326,6 +1542,113 @@
 
     function saveWireFlow() {
       localStorage.setItem(wireFlowStorageKey, JSON.stringify(wireFlow));
+    }
+
+    function saveInspections() {
+      localStorage.setItem(inspectionStorageKey, JSON.stringify(inspections));
+    }
+
+    function getBatchInspections(batchId) {
+      return inspections.filter(i => i.batchId === batchId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    function getBatchRecheckStatus(batchId) {
+      const batchInsp = getBatchInspections(batchId);
+      if (batchInsp.length === 0) return null;
+      const latest = batchInsp[0];
+      return latest.recheckStatus;
+    }
+
+    function getInspectionSummary(batchId) {
+      const batchInsp = getBatchInspections(batchId);
+      if (batchInsp.length === 0) return null;
+      const totalSampled = batchInsp.reduce((sum, i) => sum + Number(i.sampleQty), 0);
+      const totalDefects = batchInsp.reduce((sum, i) => sum + Number(i.defectQty), 0);
+      const latest = batchInsp[0];
+      return {
+        count: batchInsp.length,
+        totalSampled,
+        totalDefects,
+        latestStatus: latest.recheckStatus,
+        latestConclusion: latest.conclusion,
+        latestDate: latest.createdAt
+      };
+    }
+
+    function getRecheckStatusLabel(status) {
+      const labels = {
+        "not_required": "无需复检",
+        "pending": "待复检",
+        "passed": "复检通过"
+      };
+      return labels[status] || status;
+    }
+
+    function renderInspectionSummary(batchId) {
+      const summary = getInspectionSummary(batchId);
+      const list = getBatchInspections(batchId);
+
+      if (!summary) {
+        inspectionSummary.innerHTML = `
+          <div class="inspection-empty">
+            暂无抽检记录<br>
+            <span class="meta" style="font-size: 12px;">批次进入验收阶段后可创建抽检记录</span>
+          </div>
+        `;
+        return;
+      }
+
+      const statusClass = summary.latestStatus === "pending" ? "pending" : (summary.latestStatus === "passed" ? "passed" : "");
+      const defectRate = summary.totalSampled > 0 ? ((summary.totalDefects / summary.totalSampled) * 100).toFixed(1) : 0;
+
+      inspectionSummary.innerHTML = `
+        <div class="inspection-stats">
+          <div class="inspection-stat">
+            <div class="num">${summary.count}</div>
+            <div class="label">抽检次数</div>
+          </div>
+          <div class="inspection-stat ${statusClass}">
+            <div class="num">${summary.totalSampled}</div>
+            <div class="label">累计抽检</div>
+          </div>
+          <div class="inspection-stat">
+            <div class="num" style="color: var(--red);">${summary.totalDefects}</div>
+            <div class="label">缺陷数 (${defectRate}%)</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span class="inspection-status ${summary.latestStatus}">${getRecheckStatusLabel(summary.latestStatus)}</span>
+          <span class="meta" style="font-size: 12px;">上次抽检：${new Date(summary.latestDate).toLocaleString()}</span>
+        </div>
+        <div class="inspection-list">
+          ${list.map(insp => {
+            const recheckLabel = getRecheckStatusLabel(insp.recheckStatus);
+            const defectTags = insp.defectTypes && insp.defectTypes.length
+              ? `<div class="inspection-defects">${insp.defectTypes.map(d => `<span class="defect-tag">${d}</span>`).join("")}</div>`
+              : "";
+            const canRecheck = insp.recheckStatus === "pending";
+            return `
+              <div class="inspection-item ${insp.recheckStatus}">
+                <div class="inspection-head">
+                  <strong>${insp.conclusion}</strong>
+                  <span class="inspection-status ${insp.recheckStatus}">${recheckLabel}</span>
+                </div>
+                <div class="inspection-meta">
+                  <div>抽检：${insp.sampleQty} 枚 · 缺陷：${insp.defectQty} 枚</div>
+                  ${insp.notes ? `<div>备注：${insp.notes}</div>` : ""}
+                  <div style="font-size: 11px; margin-top: 4px;">${new Date(insp.createdAt).toLocaleString()}</div>
+                </div>
+                ${defectTags}
+                ${canRecheck ? `
+                  <div style="margin-top: 8px;">
+                    <button class="good" style="padding: 6px 12px; font-size: 12px; min-height: auto;" onclick="event.stopPropagation(); openRecheck('${insp.id}')">进行复检</button>
+                  </div>
+                ` : ""}
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
     }
 
     function addWireFlow(wireId, spec, type, qty, balance, reason) {
@@ -1463,9 +1786,14 @@
           ${cards.length ? cards.map(item => {
             const order = item.orderId ? orders.find(o => o.id === item.orderId) : null;
             const orderBadge = order ? `<div><span class="order-badge">订单：${order.customer}</span></div>` : "";
-            return `<article class="card card-clickable" onclick="openDetail('${item.id}')">
+            const recheckStatus = getBatchRecheckStatus(item.id);
+            const pendingRecheck = recheckStatus === "pending";
+            const recheckBadge = pendingRecheck ? `<div><span class="recheck-badge">待复检</span></div>` : "";
+            const cardClass = `card card-clickable${pendingRecheck ? " pending-recheck" : ""}`;
+            return `<article class="${cardClass}" onclick="openDetail('${item.id}')">
             <strong>${item.hook}</strong>
             ${orderBadge}
+            ${recheckBadge}
             <div class="meta">钢丝：${item.wire}<br>数量：${item.qty} 枚 · 负责人：${item.owner}<br>缺陷：${item.defects} · 备注：${item.note || "无"}</div>
             <div class="meta">最近：${item.history[item.history.length - 1] || "创建"}</div>
             <div class="row">
@@ -1887,8 +2215,9 @@
         orders: orders,
         wireStock: wireStock,
         wireFlow: wireFlow,
+        inspections: inspections,
         exportTime: new Date().toISOString(),
-        version: "3.0"
+        version: "4.0"
       };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
@@ -1927,8 +2256,19 @@
     const drawerMoveNext = document.querySelector("#drawerMoveNext");
     const drawerDefect = document.querySelector("#drawerDefect");
     const drawerDelete = document.querySelector("#drawerDelete");
+    const drawerInspection = document.querySelector("#drawerInspection");
+    const inspectionSummary = document.querySelector("#inspectionSummary");
+    const inspectionModal = document.querySelector("#inspectionModal");
+    const inspectionModalTitle = document.querySelector("#inspectionModalTitle");
+    const inspectionForm = document.querySelector("#inspectionForm");
+    const defectCheckboxes = document.querySelector("#defectCheckboxes");
+    const inspectionConclusionSelect = inspectionForm.querySelector('select[name="conclusion"]');
+    const closeInspectionModalBtn = document.querySelector("#closeInspectionModal");
+    const cancelInspectionBtn = document.querySelector("#cancelInspection");
+    const saveInspectionBtn = document.querySelector("#saveInspection");
 
     let currentBatchId = null;
+    let currentInspectionId = null;
 
     function openDetail(id) {
       const item = batches.find(b => b.id === id);
@@ -1963,11 +2303,13 @@
       detailHistory.innerHTML = [...item.history].reverse().map(h => {
         let cls = "history-item";
         if (h.includes("缺陷")) cls += " defect";
-        else if (h.includes("调整到") || h.includes("推进") || h.includes("完成")) cls += " stage";
+        else if (h.includes("调整到") || h.includes("推进") || h.includes("完成") || h.includes("抽检") || h.includes("复检")) cls += " stage";
         return `<div class="${cls}">${h}</div>`;
       }).join("");
       drawerMoveBack.disabled = currentStageIndex === 0;
       drawerMoveNext.disabled = currentStageIndex === stages.length - 1;
+      drawerInspection.hidden = item.stage !== "验收";
+      renderInspectionSummary(id);
       noteView.hidden = false;
       noteEdit.hidden = true;
       detailDrawer.hidden = false;
@@ -1982,6 +2324,135 @@
         detailDrawer.hidden = true;
         currentBatchId = null;
       }, 300);
+    }
+
+    function initInspectionForm() {
+      inspectionConclusionSelect.innerHTML = `<option value="">请选择处理结论</option>` +
+        conclusionOptions.map(c => `<option value="${c}">${c}</option>`).join("");
+      defectCheckboxes.innerHTML = defectTypeOptions.map(d =>
+        `<label><input type="checkbox" name="defectType" value="${d}"> ${d}</label>`
+      ).join("");
+    }
+
+    function openInspectionModal(batchId, isRecheck = false, existingId = null) {
+      if (!batchId) return;
+      const batch = batches.find(b => b.id === batchId);
+      if (!batch) return;
+
+      currentBatchId = batchId;
+      currentInspectionId = existingId;
+
+      if (isRecheck && existingId) {
+        inspectionModalTitle.textContent = `复检记录 · ${batch.hook}`;
+      } else {
+        inspectionModalTitle.textContent = `质量抽检 · ${batch.hook}`;
+      }
+
+      inspectionForm.reset();
+      inspectionForm.sampleQty.value = Math.min(20, Math.ceil(Number(batch.qty) * 0.1));
+      inspectionForm.defectQty.value = 0;
+      inspectionForm.recheckStatus.value = "not_required";
+
+      const existing = existingId ? inspections.find(i => i.id === existingId) : null;
+      if (existing) {
+        inspectionForm.sampleQty.value = existing.sampleQty;
+        inspectionForm.defectQty.value = existing.defectQty;
+        inspectionForm.conclusion.value = existing.conclusion;
+        inspectionForm.recheckStatus.value = existing.recheckStatus;
+        inspectionForm.notes.value = existing.notes || "";
+        if (existing.defectTypes && existing.defectTypes.length) {
+          inspectionForm.querySelectorAll('input[name="defectType"]').forEach(cb => {
+            cb.checked = existing.defectTypes.includes(cb.value);
+          });
+        }
+      }
+
+      inspectionModal.hidden = false;
+    }
+
+    function openRecheck(inspectionId) {
+      const insp = inspections.find(i => i.id === inspectionId);
+      if (!insp) return;
+      openInspectionModal(insp.batchId, true, inspectionId);
+    }
+
+    function closeInspectionModal() {
+      inspectionModal.hidden = true;
+      currentInspectionId = null;
+    }
+
+    function saveInspection() {
+      if (!currentBatchId) return;
+
+      const sampleQty = Number(inspectionForm.sampleQty.value);
+      const defectQty = Number(inspectionForm.defectQty.value);
+      const conclusion = inspectionForm.conclusion.value;
+      const recheckStatus = inspectionForm.recheckStatus.value;
+      const notes = inspectionForm.notes.value.trim();
+
+      if (!sampleQty || sampleQty <= 0) {
+        alert("请输入有效的抽检数量");
+        return;
+      }
+      if (!Number.isInteger(sampleQty)) {
+        alert("抽检数量必须为整数");
+        return;
+      }
+      if (!Number.isInteger(defectQty) || defectQty < 0) {
+        alert("缺陷数量必须为非负整数");
+        return;
+      }
+      if (defectQty > sampleQty) {
+        alert("缺陷数量不能大于抽检数量");
+        return;
+      }
+      if (!conclusion) {
+        alert("请选择处理结论");
+        return;
+      }
+
+      const selectedDefects = Array.from(inspectionForm.querySelectorAll('input[name="defectType"]:checked'))
+        .map(cb => cb.value);
+
+      const batch = batches.find(b => b.id === currentBatchId);
+      if (!batch) return;
+
+      const now = new Date();
+      const isRecheck = currentInspectionId !== null;
+
+      const inspection = {
+        id: currentInspectionId || crypto.randomUUID(),
+        batchId: currentBatchId,
+        sampleQty,
+        defectQty,
+        defectTypes: selectedDefects,
+        conclusion,
+        recheckStatus,
+        notes,
+        createdAt: now.toISOString()
+      };
+
+      if (currentInspectionId) {
+        const idx = inspections.findIndex(i => i.id === currentInspectionId);
+        if (idx >= 0) {
+          inspections[idx] = inspection;
+        }
+      } else {
+        inspections.unshift(inspection);
+      }
+
+      if (defectQty > batch.defects) {
+        batch.defects = defectQty;
+      }
+
+      const action = isRecheck ? "复检" : "抽检";
+      batch.history.push(`${now.toLocaleString()} ${action}记录：抽检${sampleQty}枚，缺陷${defectQty}枚，结论：${conclusion}，状态：${getRecheckStatusLabel(recheckStatus)}`);
+
+      saveInspections();
+      save();
+      closeInspectionModal();
+      render();
+      if (currentBatchId) openDetail(currentBatchId);
     }
 
     function editNote() {
@@ -2049,6 +2520,12 @@
         if (currentBatchId) openDetail(currentBatchId);
       }
     });
+    drawerInspection.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (currentBatchId) {
+        openInspectionModal(currentBatchId);
+      }
+    });
     drawerDelete.addEventListener("click", (e) => {
       e.stopPropagation();
       if (currentBatchId) {
@@ -2059,7 +2536,19 @@
       }
     });
 
+    closeInspectionModalBtn.addEventListener("click", closeInspectionModal);
+    cancelInspectionBtn.addEventListener("click", closeInspectionModal);
+    saveInspectionBtn.addEventListener("click", saveInspection);
+    inspectionForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      saveInspection();
+    });
+    inspectionModal.querySelector(".modal-mask")?.addEventListener("click", closeInspectionModal);
+
+    initInspectionForm();
+
     window.openDetail = openDetail;
+    window.openRecheck = openRecheck;
     window.openOrderDetail = openOrderDetail;
     window.assignBatchToOrder = assignBatchToOrder;
     window.unassignBatchFromOrder = unassignBatchFromOrder;
@@ -2410,6 +2899,7 @@
           const hasOrders = data.orders && Array.isArray(data.orders);
           const hasWireStock = data.wireStock && Array.isArray(data.wireStock);
           const hasWireFlow = data.wireFlow && Array.isArray(data.wireFlow);
+          const hasInspections = data.inspections && Array.isArray(data.inspections);
           if (hasBatches || hasOrders || hasWireStock || hasWireFlow) {
             const batchResults = hasBatches ? data.batches.map((item, i) => validateBatch(item, i)) : [];
             const orderResults = hasOrders ? data.orders.map((item, i) => validateOrder(item, i)) : [];
@@ -2420,6 +2910,7 @@
             if (hasOrders) parts.push(`订单 ${orderResults.length} 条（有效 ${orderValid}）`);
             if (hasWireStock) parts.push(`钢丝库存 ${data.wireStock.length} 条`);
             if (hasWireFlow) parts.push(`库存流水 ${data.wireFlow.length} 条`);
+            if (hasInspections) parts.push(`抽检记录 ${data.inspections.length} 条`);
             importSummary.textContent = `检测到数据：${parts.join("，")}。将合并导入所有数据。`;
             const hasErrors = batchResults.some(r => !r.valid) || orderResults.some(r => !r.valid);
             if (hasErrors) {
@@ -2433,7 +2924,7 @@
               importError.hidden = true;
               confirmImportBtn.disabled = false;
             }
-            pendingImport = { batches: data.batches || [], orders: data.orders || [], wireStock: data.wireStock || [], wireFlow: data.wireFlow || [] };
+            pendingImport = { batches: data.batches || [], orders: data.orders || [], wireStock: data.wireStock || [], wireFlow: data.wireFlow || [], inspections: data.inspections || [] };
             pendingImportType = "full";
             previewBody.innerHTML = "";
             importStep1.hidden = true;
@@ -2551,10 +3042,26 @@
           });
           wireFlow.sort((a, b) => new Date(b.time) - new Date(a.time));
         }
+        if (pendingImport.inspections && Array.isArray(pendingImport.inspections)) {
+          pendingImport.inspections.forEach(item => {
+            inspections.push({
+              id: item.id || crypto.randomUUID(),
+              batchId: item.batchId || "",
+              sampleQty: Number(item.sampleQty || 0),
+              defectQty: Number(item.defectQty || 0),
+              defectTypes: item.defectTypes || [],
+              conclusion: item.conclusion || "",
+              recheckStatus: item.recheckStatus || "not_required",
+              notes: item.notes ? String(item.notes) : "",
+              createdAt: item.createdAt || new Date().toISOString()
+            });
+          });
+        }
         save();
         saveOrders();
         saveWire();
         saveWireFlow();
+        saveInspections();
         if (currentTab === "batches") render();
         else if (currentTab === "orders") renderOrders();
         else if (currentTab === "wire") renderWire();
@@ -2634,6 +3141,7 @@
     saveOrders();
     saveWire();
     saveWireFlow();
+    saveInspections();
     refreshBatchWireOptions();
     render();
   </script>
