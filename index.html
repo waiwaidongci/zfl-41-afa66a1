@@ -2254,7 +2254,6 @@
       }
       form.hook.value = tpl.hookName || "";
       form.owner.value = tpl.owner || "";
-      form.defects.value = tpl.defectThreshold || 0;
       if (tpl.processNote) form.note.value = tpl.processNote;
       refreshTemplateSelect();
       templateSelect.value = tpl.id;
@@ -2475,7 +2474,6 @@
       }
       form.hook.value = tpl.hookName || "";
       form.owner.value = tpl.owner || "";
-      form.defects.value = tpl.defectThreshold || 0;
       if (tpl.processNote) form.note.value = tpl.processNote;
       templateAppliedHintEl.hidden = false;
       templateAppliedHintEl.innerHTML = `已应用模板「<strong>${tpl.hookName}</strong>」：钢丝 ${tpl.wire}，负责人 ${tpl.owner || "未指定"}，缺陷阈值 ${tpl.defectThreshold || 0} 枚${tpl.processNote ? "，已填充工序备注" : ""}`;
