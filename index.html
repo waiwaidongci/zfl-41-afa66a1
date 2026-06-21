@@ -445,14 +445,218 @@
       gap: 8px;
       justify-content: flex-end;
     }
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .tab-btn {
+      padding: 10px 18px;
+      background: transparent;
+      color: var(--muted);
+      border: 0;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      min-height: auto;
+    }
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+      background: transparent;
+      font-weight: 600;
+    }
+    .tab-btn:hover:not(.active) {
+      background: rgba(39, 102, 123, 0.06);
+    }
+    .tab-panel[hidden] { display: none; }
+    .order-stats {
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+    }
+    .order-list {
+      display: grid;
+      gap: 12px;
+    }
+    .order-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: grid;
+      gap: 10px;
+    }
+    .order-card.overdue {
+      border-left: 4px solid var(--red);
+      background: #fdf6f5;
+    }
+    .order-card.warning {
+      border-left: 4px solid var(--gold);
+      background: #fff8e8;
+    }
+    .order-card.completed {
+      border-left: 4px solid var(--green);
+      background: #f5faf1;
+    }
+    .order-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .order-head strong {
+      font-size: 16px;
+    }
+    .order-status {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .order-status.overdue {
+      background: #f6e2e0;
+      color: var(--red);
+    }
+    .order-status.warning {
+      background: #fff3d6;
+      color: var(--gold);
+    }
+    .order-status.progress {
+      background: #e6eef1;
+      color: var(--blue);
+    }
+    .order-status.completed {
+      background: #eef3ea;
+      color: var(--green);
+    }
+    .progress-bar {
+      height: 8px;
+      background: #e5e1d8;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    .progress-fill.warning {
+      background: var(--gold);
+    }
+    .progress-fill.overdue {
+      background: var(--red);
+    }
+    .batch-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .batch-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      background: #eef3ea;
+      color: var(--green);
+      border-radius: 10px;
+    }
+    .batch-tag.stage {
+      background: #e6eef1;
+      color: var(--blue);
+    }
+    .order-form {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .order-form h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+    .order-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .order-form-grid .full {
+      grid-column: 1 / -1;
+    }
+    .order-detail-section {
+      display: grid;
+      gap: 10px;
+    }
+    .order-detail-section h3 {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .order-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .batch-assign-list {
+      display: grid;
+      gap: 8px;
+      max-height: 320px;
+      overflow: auto;
+    }
+    .batch-assign-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: #fbfaf7;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      gap: 10px;
+    }
+    .batch-assign-item.assigned {
+      background: #eef3ea;
+      border-color: #c9d8be;
+    }
+    .batch-assign-item .info {
+      flex: 1;
+      min-width: 0;
+    }
+    .batch-assign-item .info strong {
+      font-size: 14px;
+    }
+    .batch-assign-item .info .meta {
+      font-size: 12px;
+    }
+    .empty-orders {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .order-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #e6eef1;
+      color: var(--blue);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
     @media (max-width: 920px) {
       header { display: block; padding: 18px; }
       main { padding: 16px; }
       .toolbar, .layout { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
+      .order-stats { grid-template-columns: repeat(2, 1fr); }
       .form { position: static; }
       .drawer-panel { width: 100%; max-width: 100%; }
       .detail-grid { grid-template-columns: 1fr; }
+      .order-form-grid { grid-template-columns: 1fr; }
+      .order-detail-grid { grid-template-columns: 1fr; }
       .defect-summary { grid-template-columns: 1fr; }
       .drawer-head, .drawer-body, .drawer-foot { padding-left: 16px; padding-right: 16px; }
     }
@@ -471,6 +675,12 @@
   </header>
 
   <main>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="batches">批次看板</button>
+      <button class="tab-btn" data-tab="orders">订单排产</button>
+    </div>
+
+    <div id="batchesPanel" class="tab-panel">
     <section class="toolbar">
       <label>按钩型筛选
         <select id="hookFilter"></select>
@@ -504,6 +714,30 @@
         <div id="board" class="board"></div>
       </div>
     </section>
+    </div>
+
+    <div id="ordersPanel" class="tab-panel" hidden>
+      <section id="orderStats" class="stats order-stats"></section>
+
+      <section class="layout">
+        <form id="orderForm" class="order-form">
+          <h2>新建订单</h2>
+          <div class="order-form-grid">
+            <label class="full">客户名称<input name="customer" required placeholder="某某渔具店 / 张总"></label>
+            <label>目标钩型<input name="hook" required placeholder="袖钩 4 号"></label>
+            <label>交付数量<input name="targetQty" type="number" min="1" required value="500"></label>
+            <label class="full">交付日期<input name="dueDate" type="date" required></label>
+            <label class="full">备注<textarea name="note" placeholder="特殊要求、包装方式等"></textarea></label>
+          </div>
+          <button class="good" type="submit">创建订单</button>
+        </form>
+
+        <div>
+          <h2 class="panel-title">订单列表</h2>
+          <div id="orderList" class="order-list"></div>
+        </div>
+      </section>
+    </div>
   </main>
 
   <div id="importModal" class="modal" hidden>
@@ -576,6 +810,10 @@
               <label>负责人</label>
               <div class="value" id="detailOwner"></div>
             </div>
+            <div class="detail-item" style="grid-column: 1 / -1;">
+              <label>所属订单</label>
+              <div class="value" id="detailOrder"></div>
+            </div>
           </div>
         </div>
 
@@ -634,15 +872,148 @@
     </div>
   </div>
 
+  <div id="orderDetailDrawer" class="drawer" hidden>
+    <div class="drawer-mask" id="orderDrawerMask"></div>
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <h2 id="orderDrawerTitle">订单详情</h2>
+        <button id="closeOrderDrawer" class="secondary">关闭</button>
+      </div>
+      <div class="drawer-body" id="orderDrawerBody">
+        <div class="order-detail-section">
+          <h3>订单信息</h3>
+          <div class="order-detail-grid">
+            <div class="detail-item">
+              <label>客户</label>
+              <div class="value" id="orderDetailCustomer"></div>
+            </div>
+            <div class="detail-item">
+              <label>目标钩型</label>
+              <div class="value" id="orderDetailHook"></div>
+            </div>
+            <div class="detail-item">
+              <label>目标数量</label>
+              <div class="value" id="orderDetailTargetQty"></div>
+            </div>
+            <div class="detail-item">
+              <label>交付日期</label>
+              <div class="value" id="orderDetailDueDate"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-detail-section">
+          <h3>完成进度</h3>
+          <div class="stage-indicator" id="orderProgressIndicator">
+            <span id="orderProgressText"></span>
+          </div>
+          <div class="progress-bar" style="margin-top: 10px;">
+            <div class="progress-fill" id="orderProgressFill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="order-detail-section">
+          <h3>已分配批次</h3>
+          <div id="orderAssignedBatches" class="batch-assign-list"></div>
+        </div>
+
+        <div class="order-detail-section">
+          <h3>可分配批次（相同钩型）</h3>
+          <div id="orderAvailableBatches" class="batch-assign-list"></div>
+        </div>
+
+        <div class="order-detail-section">
+          <h3>备注</h3>
+          <div id="orderNoteView">
+            <div class="note-display" id="orderDetailNote"></div>
+            <div class="drawer-edit-buttons" style="margin-top: 8px;">
+              <button id="editOrderNoteBtn" class="secondary">编辑备注</button>
+            </div>
+          </div>
+          <div id="orderNoteEdit" hidden>
+            <div class="note-editor">
+              <textarea id="orderDetailNoteInput" placeholder="输入备注信息..."></textarea>
+              <div class="drawer-edit-buttons">
+                <button id="cancelOrderNoteBtn" class="secondary">取消</button>
+                <button id="saveOrderNoteBtn" class="good">保存备注</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-detail-section">
+          <h3>历史记录</h3>
+          <div class="history-list" id="orderDetailHistory"></div>
+        </div>
+      </div>
+      <div class="drawer-foot">
+        <button id="orderDrawerEdit" class="secondary">编辑订单</button>
+        <button id="orderDrawerDelete" class="danger">删除订单</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="orderEditModal" class="modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title">编辑订单</h2>
+        <button id="closeOrderEdit" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <form id="orderEditForm" class="order-form">
+          <div class="order-form-grid">
+            <label class="full">客户名称<input name="customer" required></label>
+            <label>目标钩型<input name="hook" required></label>
+            <label>交付数量<input name="targetQty" type="number" min="1" required></label>
+            <label class="full">交付日期<input name="dueDate" type="date" required></label>
+            <label class="full">备注<textarea name="note"></textarea></label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelOrderEdit" class="secondary">取消</button>
+        <button id="saveOrderEdit" class="good">保存</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const stages = ["剪料", "退火", "弯钩", "淬火", "回火", "打磨", "验收"];
     const storageKey = "zfl41Batches";
+    const ordersStorageKey = "zfl41Orders";
     const seed = [
-      { id: crypto.randomUUID(), wire: "0.8mm 蓝火钢丝", hook: "溪流倒刺 6 号", qty: 120, owner: "林师傅", stage: "弯钩", defects: 3, note: "弯嘴角度偏小的单独复查", history: ["创建批次", "推进到弯钩"] },
-      { id: crypto.randomUUID(), wire: "1.0mm 高碳钢丝", hook: "海钓长柄 2 号", qty: 60, owner: "阿青", stage: "回火", defects: 1, note: "回火后抽检 12 枚", history: ["创建批次", "完成淬火"] },
-      { id: crypto.randomUUID(), wire: "0.6mm 软调钢丝", hook: "袖钩 4 号", qty: 200, owner: "小孟", stage: "剪料", defects: 0, note: "先做样钩 10 枚", history: ["创建批次"] }
+      { id: crypto.randomUUID(), wire: "0.8mm 蓝火钢丝", hook: "溪流倒刺 6 号", qty: 120, owner: "林师傅", stage: "弯钩", defects: 3, note: "弯嘴角度偏小的单独复查", history: ["创建批次", "推进到弯钩"], orderId: null },
+      { id: crypto.randomUUID(), wire: "1.0mm 高碳钢丝", hook: "海钓长柄 2 号", qty: 60, owner: "阿青", stage: "回火", defects: 1, note: "回火后抽检 12 枚", history: ["创建批次", "完成淬火"], orderId: null },
+      { id: crypto.randomUUID(), wire: "0.6mm 软调钢丝", hook: "袖钩 4 号", qty: 200, owner: "小孟", stage: "剪料", defects: 0, note: "先做样钩 10 枚", history: ["创建批次"], orderId: null }
+    ];
+    const orderSeed = [
+      {
+        id: crypto.randomUUID(),
+        customer: "老王渔具店",
+        hook: "袖钩 4 号",
+        targetQty: 500,
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+        note: "需要单独包装，每50枚一袋",
+        createdAt: new Date().toISOString(),
+        history: [`${new Date().toLocaleString()} 创建订单`]
+      },
+      {
+        id: crypto.randomUUID(),
+        customer: "张总钓具批发",
+        hook: "溪流倒刺 6 号",
+        targetQty: 200,
+        dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+        note: "急单，优先处理",
+        createdAt: new Date().toISOString(),
+        history: [`${new Date().toLocaleString()} 创建订单`]
+      }
     ];
     let batches = JSON.parse(localStorage.getItem(storageKey) || "null") || seed;
+    let orders = JSON.parse(localStorage.getItem(ordersStorageKey) || "null") || orderSeed;
+    batches.forEach(b => { if (b.orderId === undefined) b.orderId = null; });
+    let currentOrderId = null;
+    let currentTab = "batches";
 
     const form = document.querySelector("#batchForm");
     const board = document.querySelector("#board");
@@ -650,9 +1021,70 @@
     const hookFilter = document.querySelector("#hookFilter");
     const ownerFilter = document.querySelector("#ownerFilter");
     const stageFilter = document.querySelector("#stageFilter");
+    const orderForm = document.querySelector("#orderForm");
+    const orderStats = document.querySelector("#orderStats");
+    const orderList = document.querySelector("#orderList");
+    const batchesPanel = document.querySelector("#batchesPanel");
+    const ordersPanel = document.querySelector("#ordersPanel");
 
     function save() {
       localStorage.setItem(storageKey, JSON.stringify(batches));
+    }
+
+    function saveOrders() {
+      localStorage.setItem(ordersStorageKey, JSON.stringify(orders));
+    }
+
+    function getOrderBatches(orderId) {
+      return batches.filter(b => b.orderId === orderId);
+    }
+
+    function getOrderProgress(orderId) {
+      const orderBatches = getOrderBatches(orderId);
+      if (orderBatches.length === 0) return { completedQty: 0, assignedQty: 0, progress: 0 };
+      const assignedQty = orderBatches.reduce((sum, b) => sum + Number(b.qty), 0);
+      const completedQty = orderBatches
+        .filter(b => b.stage === "验收")
+        .reduce((sum, b) => sum + (Number(b.qty) - Number(b.defects)), 0);
+      const order = orders.find(o => o.id === orderId);
+      const progress = order ? Math.min(100, (completedQty / Number(order.targetQty)) * 100) : 0;
+      return { completedQty, assignedQty, progress };
+    }
+
+    function getOrderStatus(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return { status: "progress", label: "进行中", days: 0 };
+      const { progress } = getOrderProgress(orderId);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dueDate = new Date(order.dueDate);
+      dueDate.setHours(0, 0, 0, 0);
+      const diffTime = dueDate - today;
+      const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (progress >= 100) {
+        return { status: "completed", label: "已完成", days };
+      }
+      if (days < 0) {
+        return { status: "overdue", label: `已逾期 ${Math.abs(days)} 天`, days };
+      }
+      if (days <= 3 && progress < 80) {
+        return { status: "warning", label: `剩余 ${days} 天`, days };
+      }
+      return { status: "progress", label: `剩余 ${days} 天`, days };
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === tab);
+      });
+      batchesPanel.hidden = tab !== "batches";
+      ordersPanel.hidden = tab !== "orders";
+      if (tab === "orders") {
+        renderOrders();
+      } else {
+        render();
+      }
     }
 
     function options(select, values, allText) {
@@ -718,8 +1150,12 @@
         const cards = list.filter(item => item.stage === stage);
         return `<section class="col">
           <h3><span>${stage}</span><span>${cards.length}</span></h3>
-          ${cards.length ? cards.map(item => `<article class="card card-clickable" onclick="openDetail('${item.id}')">
+          ${cards.length ? cards.map(item => {
+            const order = item.orderId ? orders.find(o => o.id === item.orderId) : null;
+            const orderBadge = order ? `<div><span class="order-badge">订单：${order.customer}</span></div>` : "";
+            return `<article class="card card-clickable" onclick="openDetail('${item.id}')">
             <strong>${item.hook}</strong>
+            ${orderBadge}
             <div class="meta">钢丝：${item.wire}<br>数量：${item.qty} 枚 · 负责人：${item.owner}<br>缺陷：${item.defects} · 备注：${item.note || "无"}</div>
             <div class="meta">最近：${item.history[item.history.length - 1] || "创建"}</div>
             <div class="row">
@@ -728,7 +1164,8 @@
               <button class="warn" onclick="event.stopPropagation(); defect('${item.id}')">缺陷+1</button>
               <button class="danger" onclick="event.stopPropagation(); removeBatch('${item.id}')">删除</button>
             </div>
-          </article>`).join("") : `<div class="empty">暂无批次</div>`}
+          </article>`;
+          }).join("") : `<div class="empty">暂无批次</div>`}
         </section>`;
       }).join("");
     }
@@ -738,6 +1175,124 @@
       const list = filtered();
       renderStats(list);
       renderBoard(list);
+    }
+
+    function renderOrderStats() {
+      const total = orders.length;
+      const overdue = orders.filter(o => getOrderStatus(o.id).status === "overdue").length;
+      const warning = orders.filter(o => getOrderStatus(o.id).status === "warning").length;
+      const completed = orders.filter(o => getOrderStatus(o.id).status === "completed").length;
+      orderStats.innerHTML = `
+        <div class="stat"><span>总订单</span><b>${total}</b><span class="meta">个订单</span></div>
+        <div class="stat"><span>已完成</span><b style="color: var(--green);">${completed}</b><span class="meta">已交付</span></div>
+        <div class="stat"><span>临期</span><b style="color: var(--gold);">${warning}</b><span class="meta">3天内到期</span></div>
+        <div class="stat"><span>逾期</span><b style="color: var(--red);">${overdue}</b><span class="meta">已超期</span></div>
+      `;
+    }
+
+    function renderOrderList() {
+      if (orders.length === 0) {
+        orderList.innerHTML = `<div class="empty-orders">暂无订单，点击左侧表单创建新订单</div>`;
+        return;
+      }
+      orderList.innerHTML = orders.map(order => {
+        const { status, label } = getOrderStatus(order.id);
+        const { completedQty, assignedQty, progress } = getOrderProgress(order.id);
+        const assignedBatches = getOrderBatches(order.id);
+        const progressClass = status === "overdue" ? "overdue" : (status === "warning" ? "warning" : "");
+        return `<div class="order-card ${status}" onclick="openOrderDetail('${order.id}')">
+          <div class="order-head">
+            <div>
+              <strong>${order.customer} · ${order.hook}</strong>
+              <div class="meta">目标 ${order.targetQty} 枚 · 已分配 ${assignedQty} 枚 · 已完成 ${completedQty} 枚</div>
+            </div>
+            <span class="order-status ${status}">${label}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill ${progressClass}" style="width: ${progress.toFixed(1)}%;"></div>
+          </div>
+          <div class="meta">交付日期：${order.dueDate} · 完成进度：${progress.toFixed(1)}%</div>
+          <div class="batch-tags">
+            <span class="batch-tag">${assignedBatches.length} 个批次</span>
+            ${assignedBatches.slice(0, 3).map(b => `<span class="batch-tag stage">${b.stage} · ${b.qty}枚</span>`).join("")}
+            ${assignedBatches.length > 3 ? `<span class="batch-tag">+${assignedBatches.length - 3} 更多</span>` : ""}
+          </div>
+          ${order.note ? `<div class="meta">备注：${order.note}</div>` : ""}
+        </div>`;
+      }).join("");
+    }
+
+    function renderOrders() {
+      renderOrderStats();
+      renderOrderList();
+    }
+
+    function createOrder(data) {
+      const order = {
+        id: crypto.randomUUID(),
+        customer: data.customer.trim(),
+        hook: data.hook.trim(),
+        targetQty: Number(data.targetQty),
+        dueDate: data.dueDate,
+        note: data.note || "",
+        createdAt: new Date().toISOString(),
+        history: [`${new Date().toLocaleString()} 创建订单`]
+      };
+      orders.unshift(order);
+      saveOrders();
+      return order;
+    }
+
+    function assignBatchToOrder(batchId, orderId) {
+      const batch = batches.find(b => b.id === batchId);
+      const order = orders.find(o => o.id === orderId);
+      if (!batch || !order) return;
+      if (batch.hook !== order.hook) {
+        alert("批次钩型与订单目标钩型不一致，无法分配");
+        return;
+      }
+      if (batch.orderId && batch.orderId !== orderId) {
+        const oldOrder = orders.find(o => o.id === batch.orderId);
+        if (oldOrder) {
+          oldOrder.history.push(`${new Date().toLocaleString()} 批次 ${batch.hook} ${batch.qty}枚 被移出`);
+        }
+      }
+      batch.orderId = orderId;
+      batch.history.push(`${new Date().toLocaleString()} 分配到订单 ${order.customer}`);
+      order.history.push(`${new Date().toLocaleString()} 分配批次 ${batch.hook} ${batch.qty}枚`);
+      save();
+      saveOrders();
+    }
+
+    function unassignBatchFromOrder(batchId) {
+      const batch = batches.find(b => b.id === batchId);
+      if (!batch || !batch.orderId) return;
+      const order = orders.find(o => o.id === batch.orderId);
+      batch.orderId = null;
+      batch.history.push(`${new Date().toLocaleString()} 从订单移出`);
+      if (order) {
+        order.history.push(`${new Date().toLocaleString()} 批次 ${batch.hook} ${batch.qty}枚 已移出`);
+      }
+      save();
+      saveOrders();
+    }
+
+    function deleteOrder(orderId) {
+      if (!confirm("确认删除这个订单？相关批次将被取消关联。")) return;
+      batches.forEach(b => {
+        if (b.orderId === orderId) {
+          b.orderId = null;
+          b.history.push(`${new Date().toLocaleString()} 订单被删除，取消关联`);
+        }
+      });
+      orders = orders.filter(o => o.id !== orderId);
+      if (currentOrderId === orderId) {
+        currentOrderId = null;
+        closeOrderDetail();
+      }
+      save();
+      saveOrders();
+      renderOrders();
     }
 
     form.stage.innerHTML = stages.map(stage => `<option value="${stage}">${stage}</option>`).join("");
@@ -753,13 +1308,23 @@
         stage: data.stage,
         defects: Number(data.defects || 0),
         note: data.note,
-        history: [`${new Date().toLocaleString()} 创建批次`]
+        history: [`${new Date().toLocaleString()} 创建批次`],
+        orderId: null
       });
       form.reset();
       form.qty.value = 80;
       form.defects.value = 0;
       save();
       render();
+    });
+
+    orderForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(orderForm).entries());
+      createOrder(data);
+      orderForm.reset();
+      orderForm.targetQty.value = 500;
+      renderOrders();
     });
 
     [hookFilter, ownerFilter, stageFilter].forEach(el => el.addEventListener("change", render));
@@ -770,10 +1335,16 @@
       render();
     });
     document.querySelector("#exportBtn").addEventListener("click", () => {
-      const blob = new Blob([JSON.stringify(batches, null, 2)], { type: "application/json" });
+      const exportData = {
+        batches: batches,
+        orders: orders,
+        exportTime: new Date().toISOString(),
+        version: "2.0"
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "fish-hook-batches.json";
+      link.download = "fish-hook-workshop.json";
       link.click();
       URL.revokeObjectURL(link.href);
     });
@@ -794,6 +1365,7 @@
     const detailDefects = document.querySelector("#detailDefects");
     const detailDefectRate = document.querySelector("#detailDefectRate");
     const detailNote = document.querySelector("#detailNote");
+    const detailOrder = document.querySelector("#detailOrder");
     const detailNoteInput = document.querySelector("#detailNoteInput");
     const detailHistory = document.querySelector("#detailHistory");
     const noteView = document.querySelector("#noteView");
@@ -818,6 +1390,12 @@
       detailWire.textContent = item.wire;
       detailQty.textContent = `${item.qty} 枚`;
       detailOwner.textContent = item.owner;
+      const order = item.orderId ? orders.find(o => o.id === item.orderId) : null;
+      if (order) {
+        detailOrder.innerHTML = `<span class="order-badge" style="cursor: pointer;" onclick="event.stopPropagation(); closeDetail(); setTimeout(() => openOrderDetail('${order.id}'), 350);">${order.customer} · ${order.hook}</span>`;
+      } else {
+        detailOrder.textContent = "未分配订单";
+      }
       detailStage.textContent = item.stage;
       const currentStageIndex = stages.indexOf(item.stage);
       detailStageDots.innerHTML = stages.map((s, i) => {
@@ -933,6 +1511,207 @@
     });
 
     window.openDetail = openDetail;
+    window.openOrderDetail = openOrderDetail;
+    window.assignBatchToOrder = assignBatchToOrder;
+    window.unassignBatchFromOrder = unassignBatchFromOrder;
+    window.deleteOrder = deleteOrder;
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    const orderDetailDrawer = document.querySelector("#orderDetailDrawer");
+    const orderDrawerMask = document.querySelector("#orderDrawerMask");
+    const orderDrawerTitle = document.querySelector("#orderDrawerTitle");
+    const orderDetailCustomer = document.querySelector("#orderDetailCustomer");
+    const orderDetailHook = document.querySelector("#orderDetailHook");
+    const orderDetailTargetQty = document.querySelector("#orderDetailTargetQty");
+    const orderDetailDueDate = document.querySelector("#orderDetailDueDate");
+    const orderProgressText = document.querySelector("#orderProgressText");
+    const orderProgressFill = document.querySelector("#orderProgressFill");
+    const orderProgressIndicator = document.querySelector("#orderProgressIndicator");
+    const orderAssignedBatches = document.querySelector("#orderAssignedBatches");
+    const orderAvailableBatches = document.querySelector("#orderAvailableBatches");
+    const orderDetailNote = document.querySelector("#orderDetailNote");
+    const orderDetailNoteInput = document.querySelector("#orderDetailNoteInput");
+    const orderDetailHistory = document.querySelector("#orderDetailHistory");
+    const orderNoteView = document.querySelector("#orderNoteView");
+    const orderNoteEdit = document.querySelector("#orderNoteEdit");
+    const editOrderNoteBtn = document.querySelector("#editOrderNoteBtn");
+    const cancelOrderNoteBtn = document.querySelector("#cancelOrderNoteBtn");
+    const saveOrderNoteBtn = document.querySelector("#saveOrderNoteBtn");
+    const closeOrderDrawerBtn = document.querySelector("#closeOrderDrawer");
+    const orderDrawerEdit = document.querySelector("#orderDrawerEdit");
+    const orderDrawerDelete = document.querySelector("#orderDrawerDelete");
+
+    const orderEditModal = document.querySelector("#orderEditModal");
+    const orderEditForm = document.querySelector("#orderEditForm");
+    const closeOrderEditBtn = document.querySelector("#closeOrderEdit");
+    const cancelOrderEditBtn = document.querySelector("#cancelOrderEdit");
+    const saveOrderEditBtn = document.querySelector("#saveOrderEdit");
+
+    function openOrderDetail(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      currentOrderId = orderId;
+      const { status, label } = getOrderStatus(orderId);
+      const { completedQty, assignedQty, progress } = getOrderProgress(orderId);
+      const orderBatches = getOrderBatches(orderId);
+      const availableBatches = batches.filter(b => b.hook === order.hook && b.orderId !== orderId);
+
+      orderDrawerTitle.textContent = `${order.customer} · 订单详情`;
+      orderDetailCustomer.textContent = order.customer;
+      orderDetailHook.textContent = order.hook;
+      orderDetailTargetQty.textContent = `${order.targetQty} 枚`;
+      orderDetailDueDate.textContent = `${order.dueDate}（${label}）`;
+
+      const progressClass = status === "overdue" ? "overdue" : (status === "warning" ? "warning" : "");
+      orderProgressFill.className = `progress-fill ${progressClass}`;
+      orderProgressFill.style.width = `${progress.toFixed(1)}%`;
+      orderProgressText.textContent = `已完成 ${completedQty} / ${order.targetQty} 枚（${progress.toFixed(1)}%）· 已分配 ${assignedQty} 枚`;
+      orderProgressIndicator.style.background = status === "overdue" ? "#f6e2e0" : (status === "warning" ? "#fff3d6" : "#eef3ea");
+      orderProgressIndicator.style.borderColor = status === "overdue" ? "#e0b6b1" : (status === "warning" ? "#e4c88a" : "#c9d8be");
+      orderProgressIndicator.style.color = status === "overdue" ? "#7d2b25" : (status === "warning" ? "#8a631f" : "#3b5a32");
+
+      orderDetailNote.textContent = order.note || "无备注";
+      if (!order.note) orderDetailNote.classList.add("note-empty");
+      else orderDetailNote.classList.remove("note-empty");
+      orderDetailNoteInput.value = order.note || "";
+
+      orderAssignedBatches.innerHTML = orderBatches.length === 0
+        ? `<div class="empty">暂无已分配批次</div>`
+        : orderBatches.map(b => `
+          <div class="batch-assign-item assigned">
+            <div class="info">
+              <strong>${b.hook} · ${b.qty} 枚</strong>
+              <div class="meta">当前工序：${b.stage} · 负责人：${b.owner} · 缺陷：${b.defects}</div>
+            </div>
+            <button class="secondary" onclick="event.stopPropagation(); unassignBatchFromOrder('${b.id}'); openOrderDetail('${orderId}');">移出</button>
+          </div>
+        `).join("");
+
+      orderAvailableBatches.innerHTML = availableBatches.length === 0
+        ? `<div class="empty">没有可分配的相同钩型批次</div>`
+        : availableBatches.map(b => `
+          <div class="batch-assign-item">
+            <div class="info">
+              <strong>${b.hook} · ${b.qty} 枚</strong>
+              <div class="meta">当前工序：${b.stage} · 负责人：${b.owner}${b.orderId ? ` · 已分配至其他订单` : ""}</div>
+            </div>
+            <button class="good" onclick="event.stopPropagation(); assignBatchToOrder('${b.id}', '${orderId}'); openOrderDetail('${orderId}');">分配</button>
+          </div>
+        `).join("");
+
+      orderDetailHistory.innerHTML = [...order.history].reverse().map(h => {
+        let cls = "history-item";
+        if (h.includes("分配") || h.includes("移出")) cls += " stage";
+        return `<div class="${cls}">${h}</div>`;
+      }).join("");
+
+      orderNoteView.hidden = false;
+      orderNoteEdit.hidden = true;
+      orderDetailDrawer.hidden = false;
+      requestAnimationFrame(() => {
+        orderDetailDrawer.classList.add("open");
+      });
+    }
+
+    function closeOrderDetail() {
+      orderDetailDrawer.classList.remove("open");
+      setTimeout(() => {
+        orderDetailDrawer.hidden = true;
+        currentOrderId = null;
+      }, 300);
+    }
+
+    function editOrderNote() {
+      orderNoteView.hidden = true;
+      orderNoteEdit.hidden = false;
+      orderDetailNoteInput.focus();
+      orderDetailNoteInput.setSelectionRange(orderDetailNoteInput.value.length, orderDetailNoteInput.value.length);
+    }
+
+    function cancelOrderNote() {
+      const order = orders.find(o => o.id === currentOrderId);
+      if (order) orderDetailNoteInput.value = order.note || "";
+      orderNoteView.hidden = false;
+      orderNoteEdit.hidden = true;
+    }
+
+    function saveOrderNote() {
+      const order = orders.find(o => o.id === currentOrderId);
+      if (!order) return;
+      const oldNote = order.note || "";
+      const newNote = orderDetailNoteInput.value.trim();
+      if (oldNote !== newNote) {
+        order.note = newNote;
+        order.history.push(`${new Date().toLocaleString()} 更新备注`);
+        saveOrders();
+        orderDetailNote.textContent = newNote || "无备注";
+        if (!newNote) orderDetailNote.classList.add("note-empty");
+        else orderDetailNote.classList.remove("note-empty");
+        orderDetailHistory.innerHTML = [...order.history].reverse().map(h => {
+          let cls = "history-item";
+          if (h.includes("分配") || h.includes("移出")) cls += " stage";
+          return `<div class="${cls}">${h}</div>`;
+        }).join("");
+      }
+      orderNoteView.hidden = false;
+      orderNoteEdit.hidden = true;
+    }
+
+    function openOrderEdit() {
+      const order = orders.find(o => o.id === currentOrderId);
+      if (!order) return;
+      orderEditForm.customer.value = order.customer;
+      orderEditForm.hook.value = order.hook;
+      orderEditForm.targetQty.value = order.targetQty;
+      orderEditForm.dueDate.value = order.dueDate;
+      orderEditForm.note.value = order.note || "";
+      orderEditModal.hidden = false;
+    }
+
+    function closeOrderEdit() {
+      orderEditModal.hidden = true;
+    }
+
+    function saveOrderEdit() {
+      const order = orders.find(o => o.id === currentOrderId);
+      if (!order) return;
+      const data = Object.fromEntries(new FormData(orderEditForm).entries());
+      order.customer = data.customer.trim();
+      order.hook = data.hook.trim();
+      order.targetQty = Number(data.targetQty);
+      order.dueDate = data.dueDate;
+      order.note = data.note || "";
+      order.history.push(`${new Date().toLocaleString()} 编辑订单信息`);
+      saveOrders();
+      closeOrderEdit();
+      openOrderDetail(currentOrderId);
+      renderOrders();
+    }
+
+    closeOrderDrawerBtn.addEventListener("click", closeOrderDetail);
+    orderDrawerMask.addEventListener("click", closeOrderDetail);
+    editOrderNoteBtn.addEventListener("click", editOrderNote);
+    cancelOrderNoteBtn.addEventListener("click", cancelOrderNote);
+    saveOrderNoteBtn.addEventListener("click", saveOrderNote);
+    orderDrawerEdit.addEventListener("click", openOrderEdit);
+    orderDrawerDelete.addEventListener("click", () => {
+      if (currentOrderId) {
+        const idToDelete = currentOrderId;
+        currentOrderId = null;
+        closeOrderDetail();
+        deleteOrder(idToDelete);
+      }
+    });
+    closeOrderEditBtn.addEventListener("click", closeOrderEdit);
+    cancelOrderEditBtn.addEventListener("click", closeOrderEdit);
+    saveOrderEditBtn.addEventListener("click", saveOrderEdit);
+    orderEditForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      saveOrderEdit();
+    });
 
     const importModal = document.querySelector("#importModal");
     const importFile = document.querySelector("#importFile");
@@ -944,9 +1723,11 @@
     const confirmImportBtn = document.querySelector("#confirmImport");
 
     let pendingImport = null;
+    let pendingImportType = null;
 
     function openImport() {
       pendingImport = null;
+      pendingImportType = null;
       importFile.value = "";
       importStep1.hidden = false;
       importStep2.hidden = true;
@@ -987,6 +1768,27 @@
       return { valid: errors.length === 0, errors };
     }
 
+    function validateOrder(item, index) {
+      const errors = [];
+      if (!item || typeof item !== "object") {
+        return { valid: false, errors: ["不是有效的对象"] };
+      }
+      if (!item.customer || typeof item.customer !== "string" || !item.customer.trim()) {
+        errors.push("客户名称不能为空");
+      }
+      if (!item.hook || typeof item.hook !== "string" || !item.hook.trim()) {
+        errors.push("目标钩型不能为空");
+      }
+      const targetQty = Number(item.targetQty);
+      if (!Number.isFinite(targetQty) || targetQty <= 0 || !Number.isInteger(targetQty)) {
+        errors.push("交付数量必须为正整数");
+      }
+      if (!item.dueDate || typeof item.dueDate !== "string") {
+        errors.push("交付日期不能为空");
+      }
+      return { valid: errors.length === 0, errors };
+    }
+
     function cell(text, hasErr) {
       if (hasErr) {
         return `<td class="field-err">${text ?? ""}</td>`;
@@ -994,10 +1796,11 @@
       return `<td>${text ?? ""}</td>`;
     }
 
-    function renderPreview(list, results) {
+    function renderPreview(list, results, type) {
       const validCount = results.filter(r => r.valid).length;
       const invalidCount = results.length - validCount;
-      importSummary.textContent = `共 ${results.length} 条记录，有效 ${validCount} 条，无效 ${invalidCount} 条。`;
+      const typeLabel = type === "orders" ? "订单" : "批次";
+      importSummary.textContent = `共 ${results.length} 条${typeLabel}记录，有效 ${validCount} 条，无效 ${invalidCount} 条。`;
       if (invalidCount > 0) {
         importError.hidden = false;
         importError.textContent = results
@@ -1009,23 +1812,41 @@
         importError.hidden = true;
         confirmImportBtn.disabled = false;
       }
-      previewBody.innerHTML = list.map((item, i) => {
-        const r = results[i];
-        const rowClass = r.valid ? "row-valid" : "row-invalid";
-        const status = r.valid
-          ? `<span class="status-ok">有效</span>`
-          : `<span class="status-err">${r.errors.join("；")}</span>`;
-        return `<tr class="${rowClass}">
-          <td>${i + 1}</td>
-          ${cell(item?.wire, !r.valid && r.errors.some(e => e.includes("钢丝")))}
-          ${cell(item?.hook, !r.valid && r.errors.some(e => e.includes("钩型")))}
-          ${cell(item?.qty, !r.valid && r.errors.some(e => e.includes("数量")))}
-          ${cell(item?.owner, !r.valid && r.errors.some(e => e.includes("负责人")))}
-          ${cell(item?.stage, !r.valid && r.errors.some(e => e.includes("工序")))}
-          ${cell(item?.defects, !r.valid && r.errors.some(e => e.includes("缺陷")))}
-          <td>${status}</td>
-        </tr>`;
-      }).join("");
+      if (type === "orders") {
+        previewBody.innerHTML = list.map((item, i) => {
+          const r = results[i];
+          const rowClass = r.valid ? "row-valid" : "row-invalid";
+          const status = r.valid
+            ? `<span class="status-ok">有效</span>`
+            : `<span class="status-err">${r.errors.join("；")}</span>`;
+          return `<tr class="${rowClass}">
+            <td>${i + 1}</td>
+            ${cell(item?.customer, !r.valid && r.errors.some(e => e.includes("客户")))}
+            ${cell(item?.hook, !r.valid && r.errors.some(e => e.includes("钩型")))}
+            ${cell(item?.targetQty, !r.valid && r.errors.some(e => e.includes("数量")))}
+            ${cell(item?.dueDate, !r.valid && r.errors.some(e => e.includes("日期")))}
+            <td>${status}</td>
+          </tr>`;
+        }).join("");
+      } else {
+        previewBody.innerHTML = list.map((item, i) => {
+          const r = results[i];
+          const rowClass = r.valid ? "row-valid" : "row-invalid";
+          const status = r.valid
+            ? `<span class="status-ok">有效</span>`
+            : `<span class="status-err">${r.errors.join("；")}</span>`;
+          return `<tr class="${rowClass}">
+            <td>${i + 1}</td>
+            ${cell(item?.wire, !r.valid && r.errors.some(e => e.includes("钢丝")))}
+            ${cell(item?.hook, !r.valid && r.errors.some(e => e.includes("钩型")))}
+            ${cell(item?.qty, !r.valid && r.errors.some(e => e.includes("数量")))}
+            ${cell(item?.owner, !r.valid && r.errors.some(e => e.includes("负责人")))}
+            ${cell(item?.stage, !r.valid && r.errors.some(e => e.includes("工序")))}
+            ${cell(item?.defects, !r.valid && r.errors.some(e => e.includes("缺陷")))}
+            <td>${status}</td>
+          </tr>`;
+        }).join("");
+      }
     }
 
     importFile.addEventListener("change", async () => {
@@ -1034,46 +1855,158 @@
       try {
         const text = await file.text();
         const data = JSON.parse(text);
-        if (!Array.isArray(data)) {
-          throw new Error("JSON 内容必须是数组");
+        let importBatches, importOrders, results, previewList, type;
+        if (data && typeof data === "object" && !Array.isArray(data) && (data.batches || data.orders)) {
+          if (data.batches && Array.isArray(data.batches) && data.orders && Array.isArray(data.orders)) {
+            const batchResults = data.batches.map((item, i) => validateBatch(item, i));
+            const orderResults = data.orders.map((item, i) => validateOrder(item, i));
+            const batchValid = batchResults.filter(r => r.valid).length;
+            const orderValid = orderResults.filter(r => r.valid).length;
+            importSummary.textContent = `检测到完整数据：批次 ${batchResults.length} 条（有效 ${batchValid}），订单 ${orderResults.length} 条（有效 ${orderValid}）。将导入批次数据，订单数据将自动合并。`;
+            if (batchResults.some(r => !r.valid) || orderResults.some(r => !r.valid)) {
+              const allErrors = [];
+              batchResults.forEach((r, i) => { if (!r.valid) allErrors.push(`批次第 ${i + 1} 行：${r.errors.join("；")}`); });
+              orderResults.forEach((r, i) => { if (!r.valid) allErrors.push(`订单第 ${i + 1} 行：${r.errors.join("；")}`); });
+              importError.hidden = false;
+              importError.textContent = allErrors.join("\n");
+              confirmImportBtn.disabled = true;
+            } else {
+              importError.hidden = true;
+              confirmImportBtn.disabled = false;
+            }
+            pendingImport = { batches: data.batches, orders: data.orders };
+            pendingImportType = "full";
+            previewBody.innerHTML = "";
+            importStep1.hidden = true;
+            importStep2.hidden = false;
+            return;
+          } else if (data.batches && Array.isArray(data.batches)) {
+            importBatches = data.batches;
+            type = "batches";
+          } else if (data.orders && Array.isArray(data.orders)) {
+            importOrders = data.orders;
+            type = "orders";
+          }
+        } else if (Array.isArray(data)) {
+          const firstItem = data[0];
+          if (firstItem && firstItem.customer !== undefined) {
+            importOrders = data;
+            type = "orders";
+          } else {
+            importBatches = data;
+            type = "batches";
+          }
+        } else {
+          throw new Error("无法识别的 JSON 格式");
         }
-        const results = data.map((item, i) => validateBatch(item, i));
-        pendingImport = data;
+        if (importBatches) {
+          results = importBatches.map((item, i) => validateBatch(item, i));
+          pendingImport = importBatches;
+          pendingImportType = "batches";
+          previewList = importBatches;
+        } else if (importOrders) {
+          results = importOrders.map((item, i) => validateOrder(item, i));
+          pendingImport = importOrders;
+          pendingImportType = "orders";
+          previewList = importOrders;
+        }
         importStep1.hidden = true;
         importStep2.hidden = false;
-        renderPreview(data, results);
+        renderPreview(previewList, results, type);
       } catch (err) {
         importStep1.hidden = false;
         importStep2.hidden = true;
         importError.hidden = false;
         importError.textContent = `解析失败：${err.message}`;
         pendingImport = null;
+        pendingImportType = null;
         confirmImportBtn.disabled = true;
       }
     });
 
     confirmImportBtn.addEventListener("click", () => {
       if (!pendingImport) return;
-      const validItems = pendingImport
-        .map(item => validateBatch(item))
-        .map((r, i) => r.valid ? pendingImport[i] : null)
-        .filter(Boolean);
       const now = new Date().toLocaleString();
-      validItems.forEach(item => {
-        batches.unshift({
-          id: crypto.randomUUID(),
-          wire: String(item.wire).trim(),
-          hook: String(item.hook).trim(),
-          qty: Number(item.qty),
-          owner: String(item.owner).trim(),
-          stage: item.stage,
-          defects: Number(item.defects || 0),
-          note: item.note ? String(item.note) : "",
-          history: [`${now} 导入创建批次`]
+      if (pendingImportType === "full") {
+        const validBatches = pendingImport.batches
+          .map(item => validateBatch(item))
+          .map((r, i) => r.valid ? pendingImport.batches[i] : null)
+          .filter(Boolean);
+        const validOrders = pendingImport.orders
+          .map(item => validateOrder(item))
+          .map((r, i) => r.valid ? pendingImport.orders[i] : null)
+          .filter(Boolean);
+        validBatches.forEach(item => {
+          batches.unshift({
+            id: item.id || crypto.randomUUID(),
+            wire: String(item.wire).trim(),
+            hook: String(item.hook).trim(),
+            qty: Number(item.qty),
+            owner: String(item.owner).trim(),
+            stage: item.stage,
+            defects: Number(item.defects || 0),
+            note: item.note ? String(item.note) : "",
+            history: item.history && Array.isArray(item.history) ? item.history : [`${now} 导入创建批次`],
+            orderId: item.orderId || null
+          });
         });
-      });
-      save();
-      render();
+        validOrders.forEach(item => {
+          orders.unshift({
+            id: item.id || crypto.randomUUID(),
+            customer: String(item.customer).trim(),
+            hook: String(item.hook).trim(),
+            targetQty: Number(item.targetQty),
+            dueDate: item.dueDate,
+            note: item.note ? String(item.note) : "",
+            createdAt: item.createdAt || new Date().toISOString(),
+            history: item.history && Array.isArray(item.history) ? item.history : [`${now} 导入创建订单`]
+          });
+        });
+        save();
+        saveOrders();
+        if (currentTab === "batches") render();
+        else renderOrders();
+      } else if (pendingImportType === "orders") {
+        const validItems = pendingImport
+          .map(item => validateOrder(item))
+          .map((r, i) => r.valid ? pendingImport[i] : null)
+          .filter(Boolean);
+        validItems.forEach(item => {
+          orders.unshift({
+            id: item.id || crypto.randomUUID(),
+            customer: String(item.customer).trim(),
+            hook: String(item.hook).trim(),
+            targetQty: Number(item.targetQty),
+            dueDate: item.dueDate,
+            note: item.note ? String(item.note) : "",
+            createdAt: item.createdAt || new Date().toISOString(),
+            history: item.history && Array.isArray(item.history) ? item.history : [`${now} 导入创建订单`]
+          });
+        });
+        saveOrders();
+        if (currentTab === "orders") renderOrders();
+      } else {
+        const validItems = pendingImport
+          .map(item => validateBatch(item))
+          .map((r, i) => r.valid ? pendingImport[i] : null)
+          .filter(Boolean);
+        validItems.forEach(item => {
+          batches.unshift({
+            id: item.id || crypto.randomUUID(),
+            wire: String(item.wire).trim(),
+            hook: String(item.hook).trim(),
+            qty: Number(item.qty),
+            owner: String(item.owner).trim(),
+            stage: item.stage,
+            defects: Number(item.defects || 0),
+            note: item.note ? String(item.note) : "",
+            history: item.history && Array.isArray(item.history) ? item.history : [`${now} 导入创建批次`],
+            orderId: item.orderId || null
+          });
+        });
+        save();
+        if (currentTab === "batches") render();
+      }
       closeImport();
     });
 
@@ -1081,8 +2014,10 @@
     document.querySelector("#closeImport").addEventListener("click", closeImport);
     document.querySelector("#cancelImport").addEventListener("click", closeImport);
     document.querySelector(".modal-mask").addEventListener("click", closeImport);
+    document.querySelectorAll(".modal-mask")[1]?.addEventListener("click", closeOrderEdit);
 
     save();
+    saveOrders();
     render();
   </script>
 </body>
