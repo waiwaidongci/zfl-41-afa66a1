@@ -130,7 +130,7 @@
     .modal {
       position: fixed;
       inset: 0;
-      z-index: 50;
+      z-index: 80;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1555,6 +1555,7 @@
     function getBatchRecheckStatus(batchId) {
       const batchInsp = getBatchInspections(batchId);
       if (batchInsp.length === 0) return null;
+      if (batchInsp.some(item => item.recheckStatus === "pending")) return "pending";
       const latest = batchInsp[0];
       return latest.recheckStatus;
     }
