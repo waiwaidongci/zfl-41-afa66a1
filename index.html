@@ -2606,10 +2606,9 @@
     document.querySelector("#importBtn").addEventListener("click", openImport);
     document.querySelector("#closeImport").addEventListener("click", closeImport);
     document.querySelector("#cancelImport").addEventListener("click", closeImport);
-    const modalMasks = document.querySelectorAll(".modal-mask");
-    modalMasks[0]?.addEventListener("click", closeImport);
-    modalMasks[1]?.addEventListener("click", closeOrderEdit);
-    modalMasks[2]?.addEventListener("click", closeWireAdjust);
+    document.querySelector("#importModal .modal-mask")?.addEventListener("click", closeImport);
+    document.querySelector("#orderEditModal .modal-mask")?.addEventListener("click", closeOrderEdit);
+    document.querySelector("#wireAdjustModal .modal-mask")?.addEventListener("click", closeWireAdjust);
 
     wireForm.addEventListener("submit", event => {
       event.preventDefault();
