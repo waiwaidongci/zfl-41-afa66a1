@@ -646,16 +646,200 @@
       font-size: 11px;
       font-weight: 600;
     }
+    .wire-stats {
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+    }
+    .wire-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .wire-form {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      position: sticky;
+      top: 12px;
+    }
+    .wire-form h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+    .wire-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .wire-form-grid .full {
+      grid-column: 1 / -1;
+    }
+    .wire-list {
+      display: grid;
+      gap: 12px;
+    }
+    .wire-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: grid;
+      gap: 10px;
+    }
+    .wire-card.low {
+      border-left: 4px solid var(--gold);
+      background: #fff8e8;
+    }
+    .wire-card.out {
+      border-left: 4px solid var(--red);
+      background: #fdf6f5;
+    }
+    .wire-card.good {
+      border-left: 4px solid var(--green);
+    }
+    .wire-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .wire-head strong {
+      font-size: 16px;
+    }
+    .wire-qty {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .wire-qty.good { color: var(--green); }
+    .wire-qty.low { color: var(--gold); }
+    .wire-qty.out { color: var(--red); }
+    .wire-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .wire-unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+    .wire-stock-warning {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .wire-stock-warning.warn {
+      background: #fff3d6;
+      color: #8a631f;
+      border: 1px solid #e4c88a;
+    }
+    .wire-stock-warning.error {
+      background: #f6e2e0;
+      color: #7d2b25;
+      border: 1px solid #e0b6b1;
+    }
+    .wire-stock-warning.ok {
+      background: #eef3ea;
+      color: #3b5a32;
+      border: 1px solid #c9d8be;
+    }
+    .wire-flow-list {
+      display: grid;
+      gap: 8px;
+      max-height: 400px;
+      overflow: auto;
+      margin-top: 8px;
+    }
+    .wire-flow-item {
+      padding: 10px 12px;
+      background: #fbfaf7;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1.5;
+      border-left: 3px solid var(--muted);
+    }
+    .wire-flow-item.in {
+      border-left-color: var(--green);
+      background: #f5faf1;
+    }
+    .wire-flow-item.out {
+      border-left-color: var(--blue);
+      background: #eef6f8;
+    }
+    .wire-flow-item.adjust {
+      border-left-color: var(--gold);
+      background: #fff8e8;
+    }
+    .wire-flow-item.delete {
+      border-left-color: var(--red);
+      background: #fdf6f5;
+    }
+    .wire-flow-time {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    .wire-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .wire-actions button {
+      flex: 1;
+      min-width: 66px;
+      padding: 7px 8px;
+      font-size: 12px;
+    }
+    .wire-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .wire-section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .wire-section-title h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+    .wire-adjust-modal .modal-panel {
+      width: min(480px, 100%);
+    }
+    .wire-adjust-form {
+      display: grid;
+      gap: 12px;
+    }
+    .wire-batch-hint {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 6px 8px;
+      background: #fbfaf7;
+      border-radius: 4px;
+      line-height: 1.5;
+    }
+    .wire-batch-hint strong {
+      color: var(--ink);
+    }
     @media (max-width: 920px) {
       header { display: block; padding: 18px; }
       main { padding: 16px; }
-      .toolbar, .layout { grid-template-columns: 1fr; }
+      .toolbar, .layout, .wire-layout { grid-template-columns: 1fr; }
       .stats { grid-template-columns: repeat(2, 1fr); }
-      .order-stats { grid-template-columns: repeat(2, 1fr); }
-      .form { position: static; }
+      .order-stats, .wire-stats { grid-template-columns: repeat(2, 1fr); }
+      .form, .wire-form { position: static; }
       .drawer-panel { width: 100%; max-width: 100%; }
       .detail-grid { grid-template-columns: 1fr; }
-      .order-form-grid { grid-template-columns: 1fr; }
+      .order-form-grid, .wire-form-grid { grid-template-columns: 1fr; }
       .order-detail-grid { grid-template-columns: 1fr; }
       .defect-summary { grid-template-columns: 1fr; }
       .drawer-head, .drawer-body, .drawer-foot { padding-left: 16px; padding-right: 16px; }
@@ -678,6 +862,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="batches">批次看板</button>
       <button class="tab-btn" data-tab="orders">订单排产</button>
+      <button class="tab-btn" data-tab="wire">钢丝库存台账</button>
     </div>
 
     <div id="batchesPanel" class="tab-panel">
@@ -699,9 +884,11 @@
     <section class="layout">
       <form id="batchForm" class="form">
         <h2>新增鱼钩批次</h2>
-        <label>钢丝规格<input name="wire" required placeholder="0.7mm 高碳钢丝"></label>
+        <label>钢丝规格<select name="wire" id="batchWireSelect" required></select></label>
+        <div id="batchWireHint" class="wire-batch-hint" hidden></div>
         <label>目标钩型<input name="hook" required placeholder="袖钩 4 号"></label>
-        <label>数量<input name="qty" type="number" min="1" required value="80"></label>
+        <label>数量<input name="qty" id="batchQtyInput" type="number" min="1" required value="80"></label>
+        <div id="batchWireStockWarning" class="wire-stock-warning" hidden></div>
         <label>负责人<input name="owner" required placeholder="阿青"></label>
         <label>当前工序<select name="stage"></select></label>
         <label>缺陷数量<input name="defects" type="number" min="0" value="0"></label>
@@ -738,7 +925,74 @@
         </div>
       </section>
     </div>
+
+    <div id="wirePanel" class="tab-panel" hidden>
+      <section id="wireStats" class="stats wire-stats"></section>
+
+      <section class="wire-layout">
+        <form id="wireForm" class="wire-form">
+          <h2>钢丝入库</h2>
+          <div class="wire-form-grid">
+            <label class="full">钢丝规格<input name="spec" required placeholder="0.8mm 蓝火钢丝"></label>
+            <label>入库数量<input name="qty" type="number" min="1" required value="1000"></label>
+            <label>计量单位<input name="unit" required placeholder="米 / 枚 / kg" value="米"></label>
+            <label>安全库存<input name="safeStock" type="number" min="0" value="200"></label>
+            <label class="full">备注<textarea name="note" placeholder="供应商、采购批次、材质说明等"></textarea></label>
+          </div>
+          <button class="good" type="submit">登记入库</button>
+        </form>
+
+        <div>
+          <div class="wire-section-title">
+            <h2 class="panel-title">钢丝库存列表</h2>
+          </div>
+          <div id="wireList" class="wire-list"></div>
+
+          <div class="wire-section-title" style="margin-top: 24px;">
+            <h2 class="panel-title">库存变动流水</h2>
+          </div>
+          <div id="wireFlowList" class="wire-flow-list"></div>
+        </div>
+      </section>
+    </div>
   </main>
+
+  <div id="wireAdjustModal" class="modal wire-adjust-modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title" id="wireAdjustTitle">调整库存</h2>
+        <button id="closeWireAdjust" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <form id="wireAdjustForm" class="wire-adjust-form">
+          <label>钢丝规格
+            <input id="wireAdjustSpec" readonly>
+          </label>
+          <label>当前库存
+            <input id="wireAdjustCurrent" readonly>
+          </label>
+          <label>调整方式
+            <select id="wireAdjustType">
+              <option value="in">补充入库（增加数量）</option>
+              <option value="out">出库扣减（减少数量）</option>
+              <option value="set">直接设置为指定数量</option>
+            </select>
+          </label>
+          <label>数量
+            <input id="wireAdjustQty" type="number" min="0" required value="0">
+          </label>
+          <label>调整原因
+            <textarea id="wireAdjustReason" placeholder="盘点调整、报废、其他原因"></textarea>
+          </label>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelWireAdjust" class="secondary">取消</button>
+        <button id="saveWireAdjust" class="good">确认调整</button>
+      </div>
+    </div>
+  </div>
 
   <div id="importModal" class="modal" hidden>
     <div class="modal-mask"></div>
@@ -1009,11 +1263,26 @@
         history: [`${new Date().toLocaleString()} 创建订单`]
       }
     ];
+    const wireStorageKey = "zfl41WireStock";
+    const wireFlowStorageKey = "zfl41WireFlow";
+    const wireSeed = [
+      { id: crypto.randomUUID(), spec: "0.8mm 蓝火钢丝", qty: 2500, unit: "米", safeStock: 500, note: "供应商A，高碳钢", createdAt: new Date().toISOString() },
+      { id: crypto.randomUUID(), spec: "1.0mm 高碳钢丝", qty: 1200, unit: "米", safeStock: 300, note: "供应商B，进口材质", createdAt: new Date().toISOString() },
+      { id: crypto.randomUUID(), spec: "0.6mm 软调钢丝", qty: 80, unit: "米", safeStock: 200, note: "供应商A", createdAt: new Date().toISOString() }
+    ];
+    const wireFlowSeed = [
+      { id: crypto.randomUUID(), wireId: wireSeed[0].id, spec: wireSeed[0].spec, type: "in", qty: 2500, balance: 2500, reason: "初始入库", time: new Date().toISOString() },
+      { id: crypto.randomUUID(), wireId: wireSeed[1].id, spec: wireSeed[1].spec, type: "in", qty: 1200, balance: 1200, reason: "初始入库", time: new Date().toISOString() },
+      { id: crypto.randomUUID(), wireId: wireSeed[2].id, spec: wireSeed[2].spec, type: "in", qty: 80, balance: 80, reason: "初始入库", time: new Date().toISOString() }
+    ];
+    let wireStock = JSON.parse(localStorage.getItem(wireStorageKey) || "null") || wireSeed;
+    let wireFlow = JSON.parse(localStorage.getItem(wireFlowStorageKey) || "null") || wireFlowSeed;
     let batches = JSON.parse(localStorage.getItem(storageKey) || "null") || seed;
     let orders = JSON.parse(localStorage.getItem(ordersStorageKey) || "null") || orderSeed;
     batches.forEach(b => { if (b.orderId === undefined) b.orderId = null; });
     let currentOrderId = null;
     let currentTab = "batches";
+    let currentWireId = null;
 
     const form = document.querySelector("#batchForm");
     const board = document.querySelector("#board");
@@ -1026,6 +1295,22 @@
     const orderList = document.querySelector("#orderList");
     const batchesPanel = document.querySelector("#batchesPanel");
     const ordersPanel = document.querySelector("#ordersPanel");
+    const wirePanel = document.querySelector("#wirePanel");
+    const wireForm = document.querySelector("#wireForm");
+    const wireStatsEl = document.querySelector("#wireStats");
+    const wireListEl = document.querySelector("#wireList");
+    const wireFlowListEl = document.querySelector("#wireFlowList");
+    const batchWireSelect = document.querySelector("#batchWireSelect");
+    const batchWireHint = document.querySelector("#batchWireHint");
+    const batchQtyInput = document.querySelector("#batchQtyInput");
+    const batchWireStockWarning = document.querySelector("#batchWireStockWarning");
+    const wireAdjustModal = document.querySelector("#wireAdjustModal");
+    const wireAdjustTitle = document.querySelector("#wireAdjustTitle");
+    const wireAdjustSpec = document.querySelector("#wireAdjustSpec");
+    const wireAdjustCurrent = document.querySelector("#wireAdjustCurrent");
+    const wireAdjustType = document.querySelector("#wireAdjustType");
+    const wireAdjustQty = document.querySelector("#wireAdjustQty");
+    const wireAdjustReason = document.querySelector("#wireAdjustReason");
 
     function save() {
       localStorage.setItem(storageKey, JSON.stringify(batches));
@@ -1033,6 +1318,28 @@
 
     function saveOrders() {
       localStorage.setItem(ordersStorageKey, JSON.stringify(orders));
+    }
+
+    function saveWire() {
+      localStorage.setItem(wireStorageKey, JSON.stringify(wireStock));
+    }
+
+    function saveWireFlow() {
+      localStorage.setItem(wireFlowStorageKey, JSON.stringify(wireFlow));
+    }
+
+    function addWireFlow(wireId, spec, type, qty, balance, reason) {
+      wireFlow.unshift({
+        id: crypto.randomUUID(),
+        wireId,
+        spec,
+        type,
+        qty,
+        balance,
+        reason,
+        time: new Date().toISOString()
+      });
+      saveWireFlow();
     }
 
     function getOrderBatches(orderId) {
@@ -1080,8 +1387,11 @@
       });
       batchesPanel.hidden = tab !== "batches";
       ordersPanel.hidden = tab !== "orders";
+      wirePanel.hidden = tab !== "wire";
       if (tab === "orders") {
         renderOrders();
+      } else if (tab === "wire") {
+        renderWire();
       } else {
         render();
       }
@@ -1227,6 +1537,228 @@
       renderOrderList();
     }
 
+    function estimateWireUsage(batchQty) {
+      const perHook = 0.08;
+      return Math.ceil(Number(batchQty) * perHook * 100) / 100;
+    }
+
+    function getWireStatus(wire) {
+      if (wire.qty <= 0) return "out";
+      if (wire.qty < wire.safeStock) return "low";
+      return "good";
+    }
+
+    function refreshBatchWireOptions() {
+      const current = batchWireSelect.value;
+      const specs = wireStock.map(w => w.spec);
+      batchWireSelect.innerHTML = specs.length
+        ? specs.map(s => `<option value="${s}">${s}</option>`).join("")
+        : `<option value="">请先在钢丝库存台账中入库</option>`;
+      if (specs.includes(current)) batchWireSelect.value = current;
+      updateBatchWireHint();
+    }
+
+    function updateBatchWireHint() {
+      const spec = batchWireSelect.value;
+      const wire = wireStock.find(w => w.spec === spec);
+      if (wire) {
+        batchWireHint.hidden = false;
+        batchWireHint.innerHTML = `当前库存：<strong>${wire.qty} ${wire.unit}</strong> · 安全库存：${wire.safeStock} ${wire.unit}`;
+      } else {
+        batchWireHint.hidden = true;
+      }
+      checkBatchWireStock();
+    }
+
+    function checkBatchWireStock() {
+      const spec = batchWireSelect.value;
+      const wire = wireStock.find(w => w.spec === spec);
+      const batchQty = Number(batchQtyInput.value) || 0;
+      if (!wire || batchQty <= 0) {
+        batchWireStockWarning.hidden = true;
+        return;
+      }
+      const estimated = estimateWireUsage(batchQty);
+      if (wire.qty < estimated) {
+        batchWireStockWarning.hidden = false;
+        batchWireStockWarning.className = "wire-stock-warning error";
+        batchWireStockWarning.innerHTML = `⚠ 库存不足：预计需用 <strong>${estimated} ${wire.unit}</strong>，当前库存仅 <strong>${wire.qty} ${wire.unit}</strong>，仍可手动保存`;
+      } else if (wire.qty - estimated < wire.safeStock) {
+        batchWireStockWarning.hidden = false;
+        batchWireStockWarning.className = "wire-stock-warning warn";
+        batchWireStockWarning.innerHTML = `⚡ 库存偏低：预计需用 <strong>${estimated} ${wire.unit}</strong>，用后剩余 <strong>${(wire.qty - estimated).toFixed(2)} ${wire.unit}</strong>，将低于安全库存`;
+      } else {
+        batchWireStockWarning.hidden = false;
+        batchWireStockWarning.className = "wire-stock-warning ok";
+        batchWireStockWarning.innerHTML = `✓ 库存充足：预计需用 <strong>${estimated} ${wire.unit}</strong>，用后剩余 <strong>${(wire.qty - estimated).toFixed(2)} ${wire.unit}</strong>`;
+      }
+    }
+
+    function wireInbound(data) {
+      const spec = data.spec.trim();
+      const qty = Number(data.qty);
+      const unit = data.unit.trim() || "米";
+      const safeStock = Number(data.safeStock) || 0;
+      const note = data.note || "";
+      const existing = wireStock.find(w => w.spec === spec);
+      if (existing) {
+        existing.qty += qty;
+        existing.unit = unit;
+        existing.safeStock = safeStock;
+        if (note) existing.note = note;
+        addWireFlow(existing.id, spec, "in", qty, existing.qty, `入库 +${qty} ${unit}${note ? "：" + note : ""}`);
+      } else {
+        const newWire = {
+          id: crypto.randomUUID(),
+          spec,
+          qty,
+          unit,
+          safeStock,
+          note,
+          createdAt: new Date().toISOString()
+        };
+        wireStock.unshift(newWire);
+        addWireFlow(newWire.id, spec, "in", qty, qty, `新规格入库 +${qty} ${unit}${note ? "：" + note : ""}`);
+      }
+      saveWire();
+    }
+
+    function adjustWireStock(wireId, adjustType, adjustQty, reason) {
+      const wire = wireStock.find(w => w.id === wireId);
+      if (!wire) return;
+      const oldQty = wire.qty;
+      let newQty;
+      let flowType;
+      let flowQty;
+      if (adjustType === "in") {
+        newQty = oldQty + Number(adjustQty);
+        flowType = "in";
+        flowQty = Number(adjustQty);
+      } else if (adjustType === "out") {
+        newQty = Math.max(0, oldQty - Number(adjustQty));
+        flowType = "out";
+        flowQty = oldQty - newQty;
+      } else {
+        newQty = Number(adjustQty);
+        flowType = "adjust";
+        flowQty = newQty - oldQty;
+      }
+      wire.qty = newQty;
+      const reasonText = reason || (adjustType === "in" ? "补充入库" : (adjustType === "out" ? "出库扣减" : "盘点调整"));
+      addWireFlow(wire.id, wire.spec, flowType, flowQty, newQty, `${reasonText}（${oldQty} → ${newQty} ${wire.unit}）`);
+      saveWire();
+    }
+
+    function deleteWire(wireId) {
+      const wire = wireStock.find(w => w.id === wireId);
+      if (!wire) return;
+      if (!confirm(`确认删除钢丝规格「${wire.spec}」？所有库存记录和流水将被清除。`)) return;
+      addWireFlow(wire.id, wire.spec, "delete", wire.qty, 0, `删除规格，清空库存 ${wire.qty} ${wire.unit}`);
+      wireStock = wireStock.filter(w => w.id !== wireId);
+      saveWire();
+    }
+
+    function renderWireStats() {
+      const totalSpecs = wireStock.length;
+      const totalQty = wireStock.reduce((s, w) => s + Number(w.qty), 0);
+      const lowCount = wireStock.filter(w => getWireStatus(w) === "low").length;
+      const outCount = wireStock.filter(w => getWireStatus(w) === "out").length;
+      wireStatsEl.innerHTML = `
+        <div class="stat"><span>钢丝规格</span><b>${totalSpecs}</b><span class="meta">种规格</span></div>
+        <div class="stat"><span>库存总量</span><b>${totalQty.toFixed(2)}</b><span class="meta">总数量</span></div>
+        <div class="stat"><span>库存偏低</span><b style="color: var(--gold);">${lowCount}</b><span class="meta">低于安全线</span></div>
+        <div class="stat"><span>已缺货</span><b style="color: var(--red);">${outCount}</b><span class="meta">库存为 0</span></div>
+      `;
+    }
+
+    function renderWireList() {
+      if (wireStock.length === 0) {
+        wireListEl.innerHTML = `<div class="wire-empty">暂无钢丝库存，点击左侧表单登记入库</div>`;
+        return;
+      }
+      wireListEl.innerHTML = wireStock.map(wire => {
+        const status = getWireStatus(wire);
+        const statusLabel = status === "out" ? "已缺货" : (status === "low" ? "库存偏低" : "库存正常");
+        return `<div class="wire-card ${status}">
+          <div class="wire-head">
+            <div>
+              <strong>${wire.spec}</strong>
+              <div class="wire-meta">安全库存：${wire.safeStock} ${wire.unit}${wire.note ? ` · ${wire.note}` : ""}</div>
+            </div>
+            <div>
+              <span class="wire-qty ${status}">${wire.qty.toFixed(2)}</span>
+              <span class="wire-unit">${wire.unit}</span>
+              <div class="wire-meta" style="text-align: right;">${statusLabel}</div>
+            </div>
+          </div>
+          <div class="wire-actions">
+            <button class="good" onclick="openWireAdjust('${wire.id}', 'in')">补充入库</button>
+            <button class="secondary" onclick="openWireAdjust('${wire.id}', 'out')">出库扣减</button>
+            <button class="warn" onclick="openWireAdjust('${wire.id}', 'set')">调整数量</button>
+            <button class="danger" onclick="deleteWire('${wire.id}'); renderWire();">删除</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderWireFlow() {
+      if (wireFlow.length === 0) {
+        wireFlowListEl.innerHTML = `<div class="empty">暂无变动记录</div>`;
+        return;
+      }
+      const typeLabel = { in: "入库", out: "出库", adjust: "调整", delete: "删除" };
+      wireFlowListEl.innerHTML = wireFlow.slice(0, 50).map(f => `
+        <div class="wire-flow-item ${f.type}">
+          <div><strong>${f.spec}</strong> · ${typeLabel[f.type] || f.type}：${f.qty > 0 ? "+" : ""}${f.qty} · 结存：${f.balance}</div>
+          <div class="wire-meta">${f.reason || ""}</div>
+          <div class="wire-flow-time">${new Date(f.time).toLocaleString()}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderWire() {
+      refreshBatchWireOptions();
+      renderWireStats();
+      renderWireList();
+      renderWireFlow();
+    }
+
+    function openWireAdjust(wireId, defaultType) {
+      const wire = wireStock.find(w => w.id === wireId);
+      if (!wire) return;
+      currentWireId = wireId;
+      wireAdjustTitle.textContent = `调整库存 · ${wire.spec}`;
+      wireAdjustSpec.value = wire.spec;
+      wireAdjustCurrent.value = `${wire.qty} ${wire.unit}`;
+      wireAdjustType.value = defaultType || "in";
+      wireAdjustQty.value = 0;
+      wireAdjustReason.value = "";
+      wireAdjustModal.hidden = false;
+    }
+
+    function closeWireAdjust() {
+      wireAdjustModal.hidden = true;
+      currentWireId = null;
+    }
+
+    function saveWireAdjust() {
+      if (!currentWireId) return;
+      const adjustType = wireAdjustType.value;
+      const adjustQty = Number(wireAdjustQty.value);
+      const reason = wireAdjustReason.value.trim();
+      if (!Number.isFinite(adjustQty) || adjustQty < 0) {
+        alert("请输入有效的数量");
+        return;
+      }
+      adjustWireStock(currentWireId, adjustType, adjustQty, reason);
+      closeWireAdjust();
+      renderWire();
+      refreshBatchWireOptions();
+    }
+
+    window.deleteWire = deleteWire;
+    window.openWireAdjust = openWireAdjust;
+
     function createOrder(data) {
       const order = {
         id: crypto.randomUUID(),
@@ -1299,6 +1831,20 @@
     form.addEventListener("submit", event => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
+      const wire = wireStock.find(w => w.spec === data.wire);
+      const estimated = estimateWireUsage(data.qty);
+      if (wire) {
+        if (wire.qty < estimated) {
+          if (!confirm(`钢丝「${wire.spec}」库存不足：预计需用 ${estimated} ${wire.unit}，当前仅 ${wire.qty} ${wire.unit}。是否仍要创建批次？`)) {
+            return;
+          }
+        }
+        const actualUsed = Math.min(wire.qty, estimated);
+        const oldQty = wire.qty;
+        wire.qty = Math.max(0, wire.qty - estimated);
+        addWireFlow(wire.id, wire.spec, "out", estimated, wire.qty, `批次领用：${data.hook} ${data.qty}枚，预计耗用 ${estimated} ${wire.unit}（库存 ${oldQty} → ${wire.qty}）`);
+        saveWire();
+      }
       batches.unshift({
         id: crypto.randomUUID(),
         wire: data.wire,
@@ -1308,7 +1854,7 @@
         stage: data.stage,
         defects: Number(data.defects || 0),
         note: data.note,
-        history: [`${new Date().toLocaleString()} 创建批次`],
+        history: [`${new Date().toLocaleString()} 创建批次${wire ? `，领用钢丝 ${estimated} ${wire.unit}` : ""}`],
         orderId: null
       });
       form.reset();
@@ -1316,6 +1862,7 @@
       form.defects.value = 0;
       save();
       render();
+      refreshBatchWireOptions();
     });
 
     orderForm.addEventListener("submit", event => {
@@ -1338,8 +1885,10 @@
       const exportData = {
         batches: batches,
         orders: orders,
+        wireStock: wireStock,
+        wireFlow: wireFlow,
         exportTime: new Date().toISOString(),
-        version: "2.0"
+        version: "3.0"
       };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
@@ -1856,14 +2405,24 @@
         const text = await file.text();
         const data = JSON.parse(text);
         let importBatches, importOrders, results, previewList, type;
-        if (data && typeof data === "object" && !Array.isArray(data) && (data.batches || data.orders)) {
-          if (data.batches && Array.isArray(data.batches) && data.orders && Array.isArray(data.orders)) {
-            const batchResults = data.batches.map((item, i) => validateBatch(item, i));
-            const orderResults = data.orders.map((item, i) => validateOrder(item, i));
+        if (data && typeof data === "object" && !Array.isArray(data) && (data.batches || data.orders || data.wireStock || data.wireFlow)) {
+          const hasBatches = data.batches && Array.isArray(data.batches);
+          const hasOrders = data.orders && Array.isArray(data.orders);
+          const hasWireStock = data.wireStock && Array.isArray(data.wireStock);
+          const hasWireFlow = data.wireFlow && Array.isArray(data.wireFlow);
+          if (hasBatches || hasOrders || hasWireStock || hasWireFlow) {
+            const batchResults = hasBatches ? data.batches.map((item, i) => validateBatch(item, i)) : [];
+            const orderResults = hasOrders ? data.orders.map((item, i) => validateOrder(item, i)) : [];
             const batchValid = batchResults.filter(r => r.valid).length;
             const orderValid = orderResults.filter(r => r.valid).length;
-            importSummary.textContent = `检测到完整数据：批次 ${batchResults.length} 条（有效 ${batchValid}），订单 ${orderResults.length} 条（有效 ${orderValid}）。将导入批次数据，订单数据将自动合并。`;
-            if (batchResults.some(r => !r.valid) || orderResults.some(r => !r.valid)) {
+            const parts = [];
+            if (hasBatches) parts.push(`批次 ${batchResults.length} 条（有效 ${batchValid}）`);
+            if (hasOrders) parts.push(`订单 ${orderResults.length} 条（有效 ${orderValid}）`);
+            if (hasWireStock) parts.push(`钢丝库存 ${data.wireStock.length} 条`);
+            if (hasWireFlow) parts.push(`库存流水 ${data.wireFlow.length} 条`);
+            importSummary.textContent = `检测到数据：${parts.join("，")}。将合并导入所有数据。`;
+            const hasErrors = batchResults.some(r => !r.valid) || orderResults.some(r => !r.valid);
+            if (hasErrors) {
               const allErrors = [];
               batchResults.forEach((r, i) => { if (!r.valid) allErrors.push(`批次第 ${i + 1} 行：${r.errors.join("；")}`); });
               orderResults.forEach((r, i) => { if (!r.valid) allErrors.push(`订单第 ${i + 1} 行：${r.errors.join("；")}`); });
@@ -1874,18 +2433,12 @@
               importError.hidden = true;
               confirmImportBtn.disabled = false;
             }
-            pendingImport = { batches: data.batches, orders: data.orders };
+            pendingImport = { batches: data.batches || [], orders: data.orders || [], wireStock: data.wireStock || [], wireFlow: data.wireFlow || [] };
             pendingImportType = "full";
             previewBody.innerHTML = "";
             importStep1.hidden = true;
             importStep2.hidden = false;
             return;
-          } else if (data.batches && Array.isArray(data.batches)) {
-            importBatches = data.batches;
-            type = "batches";
-          } else if (data.orders && Array.isArray(data.orders)) {
-            importOrders = data.orders;
-            type = "orders";
           }
         } else if (Array.isArray(data)) {
           const firstItem = data[0];
@@ -1928,11 +2481,11 @@
       if (!pendingImport) return;
       const now = new Date().toLocaleString();
       if (pendingImportType === "full") {
-        const validBatches = pendingImport.batches
+        const validBatches = (pendingImport.batches || [])
           .map(item => validateBatch(item))
           .map((r, i) => r.valid ? pendingImport.batches[i] : null)
           .filter(Boolean);
-        const validOrders = pendingImport.orders
+        const validOrders = (pendingImport.orders || [])
           .map(item => validateOrder(item))
           .map((r, i) => r.valid ? pendingImport.orders[i] : null)
           .filter(Boolean);
@@ -1962,10 +2515,50 @@
             history: item.history && Array.isArray(item.history) ? item.history : [`${now} 导入创建订单`]
           });
         });
+        if (pendingImport.wireStock && Array.isArray(pendingImport.wireStock)) {
+          pendingImport.wireStock.forEach(item => {
+            const existing = wireStock.find(w => w.spec === String(item.spec).trim());
+            if (existing) {
+              existing.qty = Number(item.qty);
+              existing.unit = String(item.unit || "米");
+              existing.safeStock = Number(item.safeStock || 0);
+              existing.note = item.note ? String(item.note) : "";
+            } else {
+              wireStock.unshift({
+                id: item.id || crypto.randomUUID(),
+                spec: String(item.spec).trim(),
+                qty: Number(item.qty),
+                unit: String(item.unit || "米"),
+                safeStock: Number(item.safeStock || 0),
+                note: item.note ? String(item.note) : "",
+                createdAt: item.createdAt || new Date().toISOString()
+              });
+            }
+          });
+        }
+        if (pendingImport.wireFlow && Array.isArray(pendingImport.wireFlow)) {
+          pendingImport.wireFlow.forEach(item => {
+            wireFlow.push({
+              id: item.id || crypto.randomUUID(),
+              wireId: item.wireId || "",
+              spec: String(item.spec || ""),
+              type: item.type || "adjust",
+              qty: Number(item.qty || 0),
+              balance: Number(item.balance || 0),
+              reason: item.reason ? String(item.reason) : "",
+              time: item.time || new Date().toISOString()
+            });
+          });
+          wireFlow.sort((a, b) => new Date(b.time) - new Date(a.time));
+        }
         save();
         saveOrders();
+        saveWire();
+        saveWireFlow();
         if (currentTab === "batches") render();
-        else renderOrders();
+        else if (currentTab === "orders") renderOrders();
+        else if (currentTab === "wire") renderWire();
+        refreshBatchWireOptions();
       } else if (pendingImportType === "orders") {
         const validItems = pendingImport
           .map(item => validateOrder(item))
@@ -2013,11 +2606,36 @@
     document.querySelector("#importBtn").addEventListener("click", openImport);
     document.querySelector("#closeImport").addEventListener("click", closeImport);
     document.querySelector("#cancelImport").addEventListener("click", closeImport);
-    document.querySelector(".modal-mask").addEventListener("click", closeImport);
-    document.querySelectorAll(".modal-mask")[1]?.addEventListener("click", closeOrderEdit);
+    const modalMasks = document.querySelectorAll(".modal-mask");
+    modalMasks[0]?.addEventListener("click", closeImport);
+    modalMasks[1]?.addEventListener("click", closeOrderEdit);
+    modalMasks[2]?.addEventListener("click", closeWireAdjust);
+
+    wireForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(wireForm).entries());
+      wireInbound(data);
+      wireForm.reset();
+      wireForm.qty.value = 1000;
+      wireForm.unit.value = "米";
+      wireForm.safeStock.value = 200;
+      renderWire();
+      refreshBatchWireOptions();
+    });
+
+    batchWireSelect.addEventListener("change", updateBatchWireHint);
+    batchQtyInput.addEventListener("input", checkBatchWireStock);
+
+    document.querySelector("#closeWireAdjust").addEventListener("click", closeWireAdjust);
+    document.querySelector("#cancelWireAdjust").addEventListener("click", closeWireAdjust);
+    document.querySelector("#saveWireAdjust").addEventListener("click", saveWireAdjust);
+    wireAdjustForm.addEventListener("submit", e => { e.preventDefault(); saveWireAdjust(); });
 
     save();
     saveOrders();
+    saveWire();
+    saveWireFlow();
+    refreshBatchWireOptions();
     render();
   </script>
 </body>
