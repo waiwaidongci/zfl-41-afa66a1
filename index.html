@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>手工鱼钩弯制工作室</title>
+  <style>
+    :root {
+      --bg: #f6f3ee;
+      --panel: #ffffff;
+      --ink: #20242a;
+      --muted: #68717d;
+      --line: #d9d2c7;
+      --blue: #27667b;
+      --green: #4f7d52;
+      --red: #a5423b;
+      --gold: #b7812f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      padding: 22px 28px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfaf7;
+    }
+    h1 { margin: 0; font-size: 26px; letter-spacing: 0; }
+    .sub { color: var(--muted); margin-top: 6px; font-size: 14px; }
+    main { padding: 20px 28px 32px; display: grid; gap: 18px; }
+    .toolbar, .form, .stats, .board { display: grid; gap: 12px; }
+    .toolbar {
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      align-items: end;
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    label { display: grid; gap: 5px; font-size: 12px; color: var(--muted); }
+    input, select, textarea, button {
+      font: inherit;
+      border-radius: 6px;
+    }
+    input, select, textarea {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--ink);
+      min-width: 0;
+    }
+    textarea { min-height: 74px; resize: vertical; }
+    button {
+      border: 0;
+      padding: 9px 11px;
+      background: var(--blue);
+      color: #fff;
+      cursor: pointer;
+      min-height: 38px;
+    }
+    button.secondary { background: #59636d; }
+    button.good { background: var(--green); }
+    button.warn { background: var(--gold); }
+    button.danger { background: var(--red); }
+    .stats {
+      grid-template-columns: repeat(7, minmax(92px, 1fr));
+    }
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .stat b { display: block; font-size: 22px; margin-top: 5px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .form {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      position: sticky;
+      top: 12px;
+    }
+    .form h2, .panel-title { margin: 0; font-size: 17px; }
+    .board {
+      grid-template-columns: repeat(7, minmax(170px, 1fr));
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    .col {
+      min-height: 360px;
+      background: #fffefa;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .col h3 {
+      margin: 0 0 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid #ded8ce;
+      border-left: 4px solid var(--blue);
+      border-radius: 7px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .card strong { font-size: 15px; }
+    .meta { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .row { display: flex; gap: 7px; flex-wrap: wrap; }
+    .row button { flex: 1; min-width: 66px; padding: 7px 8px; font-size: 12px; }
+    .empty { color: var(--muted); font-size: 13px; padding: 12px 4px; }
+    @media (max-width: 920px) {
+      header { display: block; padding: 18px; }
+      main { padding: 16px; }
+      .toolbar, .layout { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .form { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>手工鱼钩弯制工作室</h1>
+      <div class="sub">剪料、退火、弯钩、淬火、回火、打磨、验收的批次闭环看板</div>
+    </div>
+    <button id="exportBtn" class="secondary">导出 JSON</button>
+  </header>
+
+  <main>
+    <section class="toolbar">
+      <label>按钩型筛选
+        <select id="hookFilter"></select>
+      </label>
+      <label>按负责人筛选
+        <select id="ownerFilter"></select>
+      </label>
+      <label>按工序筛选
+        <select id="stageFilter"></select>
+      </label>
+      <button id="resetFilters" class="secondary">清空筛选</button>
+    </section>
+
+    <section id="stats" class="stats"></section>
+
+    <section class="layout">
+      <form id="batchForm" class="form">
+        <h2>新增鱼钩批次</h2>
+        <label>钢丝规格<input name="wire" required placeholder="0.7mm 高碳钢丝"></label>
+        <label>目标钩型<input name="hook" required placeholder="袖钩 4 号"></label>
+        <label>数量<input name="qty" type="number" min="1" required value="80"></label>
+        <label>负责人<input name="owner" required placeholder="阿青"></label>
+        <label>当前工序<select name="stage"></select></label>
+        <label>缺陷数量<input name="defects" type="number" min="0" value="0"></label>
+        <label>备注<textarea name="note" placeholder="退火火候、弯曲角度、打磨要求"></textarea></label>
+        <button class="good" type="submit">加入看板</button>
+      </form>
+
+      <div>
+        <h2 class="panel-title">工序看板</h2>
+        <div id="board" class="board"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const stages = ["剪料", "退火", "弯钩", "淬火", "回火", "打磨", "验收"];
+    const storageKey = "zfl41Batches";
+    const seed = [
+      { id: crypto.randomUUID(), wire: "0.8mm 蓝火钢丝", hook: "溪流倒刺 6 号", qty: 120, owner: "林师傅", stage: "弯钩", defects: 3, note: "弯嘴角度偏小的单独复查", history: ["创建批次", "推进到弯钩"] },
+      { id: crypto.randomUUID(), wire: "1.0mm 高碳钢丝", hook: "海钓长柄 2 号", qty: 60, owner: "阿青", stage: "回火", defects: 1, note: "回火后抽检 12 枚", history: ["创建批次", "完成淬火"] },
+      { id: crypto.randomUUID(), wire: "0.6mm 软调钢丝", hook: "袖钩 4 号", qty: 200, owner: "小孟", stage: "剪料", defects: 0, note: "先做样钩 10 枚", history: ["创建批次"] }
+    ];
+    let batches = JSON.parse(localStorage.getItem(storageKey) || "null") || seed;
+
+    const form = document.querySelector("#batchForm");
+    const board = document.querySelector("#board");
+    const stats = document.querySelector("#stats");
+    const hookFilter = document.querySelector("#hookFilter");
+    const ownerFilter = document.querySelector("#ownerFilter");
+    const stageFilter = document.querySelector("#stageFilter");
+
+    function save() {
+      localStorage.setItem(storageKey, JSON.stringify(batches));
+    }
+
+    function options(select, values, allText) {
+      const current = select.value;
+      select.innerHTML = [`<option value="">${allText}</option>`]
+        .concat(values.map(v => `<option value="${v}">${v}</option>`)).join("");
+      if (values.includes(current)) select.value = current;
+    }
+
+    function refreshFilters() {
+      options(hookFilter, [...new Set(batches.map(b => b.hook))], "全部钩型");
+      options(ownerFilter, [...new Set(batches.map(b => b.owner))], "全部负责人");
+      options(stageFilter, stages, "全部工序");
+    }
+
+    function filtered() {
+      return batches.filter(item =>
+        (!hookFilter.value || item.hook === hookFilter.value) &&
+        (!ownerFilter.value || item.owner === ownerFilter.value) &&
+        (!stageFilter.value || item.stage === stageFilter.value)
+      );
+    }
+
+    function renderStats(list) {
+      stats.innerHTML = stages.map(stage => {
+        const total = list.filter(item => item.stage === stage).reduce((sum, item) => sum + Number(item.qty), 0);
+        return `<div class="stat"><span>${stage}</span><b>${total}</b><span class="meta">枚在制</span></div>`;
+      }).join("");
+    }
+
+    function move(id, offset) {
+      const item = batches.find(b => b.id === id);
+      const nextIndex = Math.max(0, Math.min(stages.length - 1, stages.indexOf(item.stage) + offset));
+      item.stage = stages[nextIndex];
+      item.history.push(`${new Date().toLocaleString()} 调整到 ${item.stage}`);
+      save();
+      render();
+    }
+
+    function defect(id) {
+      const item = batches.find(b => b.id === id);
+      item.defects += 1;
+      item.history.push(`${new Date().toLocaleString()} 记录缺陷，总数 ${item.defects}`);
+      save();
+      render();
+    }
+
+    function removeBatch(id) {
+      if (!confirm("确认删除这个批次？")) return;
+      batches = batches.filter(b => b.id !== id);
+      save();
+      render();
+    }
+
+    function renderBoard(list) {
+      board.innerHTML = stages.map(stage => {
+        const cards = list.filter(item => item.stage === stage);
+        return `<section class="col">
+          <h3><span>${stage}</span><span>${cards.length}</span></h3>
+          ${cards.length ? cards.map(item => `<article class="card">
+            <strong>${item.hook}</strong>
+            <div class="meta">钢丝：${item.wire}<br>数量：${item.qty} 枚 · 负责人：${item.owner}<br>缺陷：${item.defects} · 备注：${item.note || "无"}</div>
+            <div class="meta">最近：${item.history[item.history.length - 1] || "创建"}</div>
+            <div class="row">
+              <button class="secondary" onclick="move('${item.id}', -1)">上一步</button>
+              <button class="good" onclick="move('${item.id}', 1)">下一步</button>
+              <button class="warn" onclick="defect('${item.id}')">缺陷+1</button>
+              <button class="danger" onclick="removeBatch('${item.id}')">删除</button>
+            </div>
+          </article>`).join("") : `<div class="empty">暂无批次</div>`}
+        </section>`;
+      }).join("");
+    }
+
+    function render() {
+      refreshFilters();
+      const list = filtered();
+      renderStats(list);
+      renderBoard(list);
+    }
+
+    form.stage.innerHTML = stages.map(stage => `<option value="${stage}">${stage}</option>`).join("");
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      batches.unshift({
+        id: crypto.randomUUID(),
+        wire: data.wire,
+        hook: data.hook,
+        qty: Number(data.qty),
+        owner: data.owner,
+        stage: data.stage,
+        defects: Number(data.defects || 0),
+        note: data.note,
+        history: [`${new Date().toLocaleString()} 创建批次`]
+      });
+      form.reset();
+      form.qty.value = 80;
+      form.defects.value = 0;
+      save();
+      render();
+    });
+
+    [hookFilter, ownerFilter, stageFilter].forEach(el => el.addEventListener("change", render));
+    document.querySelector("#resetFilters").addEventListener("click", () => {
+      hookFilter.value = "";
+      ownerFilter.value = "";
+      stageFilter.value = "";
+      render();
+    });
+    document.querySelector("#exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(batches, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "fish-hook-batches.json";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+
+    window.move = move;
+    window.defect = defect;
+    window.removeBatch = removeBatch;
+    save();
+    render();
+  </script>
+</body>
+</html>
