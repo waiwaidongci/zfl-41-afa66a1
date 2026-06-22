@@ -26,6 +26,7 @@
       <button class="tab-btn" data-tab="purchase">供应商与采购补货</button>
       <button class="tab-btn" data-tab="templates">工艺模板库</button>
       <button class="tab-btn" data-tab="packaging">包装出货</button>
+      <button class="tab-btn" data-tab="snapshots">数据版本与恢复</button>
     </div>
 
     <div id="batchesPanel" class="tab-panel">
@@ -293,6 +294,22 @@
           <div id="purchaseFlowList" class="wire-flow-list"></div>
         </section>
       </div>
+    </div>
+
+    <div id="snapshotsPanel" class="tab-panel" hidden>
+      <section id="snapshotStats" class="stats snapshot-stats"></section>
+
+      <section class="snapshot-layout">
+        <div class="snapshot-toolbar">
+          <button id="createSnapshotBtn" class="good">创建快照</button>
+          <button id="cleanupSnapshotBtn" class="warn">清理旧快照</button>
+          <button id="importSnapshotBtn" class="secondary">导入快照</button>
+          <div class="grow"></div>
+          <div class="meta" id="snapshotMaxHint">最多保存 50 条快照</div>
+        </div>
+
+        <div id="snapshotList" class="snapshot-list"></div>
+      </section>
     </div>
   </main>
 
@@ -704,11 +721,115 @@
     </div>
   </div>
 
+  <div id="createSnapshotModal" class="modal create-snapshot-modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title">创建快照</h2>
+        <button id="closeCreateSnapshot" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <form id="createSnapshotForm" class="create-snapshot-form">
+          <label>快照名称
+            <input id="snapshotName" placeholder="例如：每日备份 2024-06-22" required>
+          </label>
+          <label>备注说明
+            <textarea id="snapshotNote" placeholder="可选，描述这个快照的内容和创建原因"></textarea>
+          </label>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelCreateSnapshot" class="secondary">取消</button>
+        <button class="good" type="submit" form="createSnapshotForm">创建快照</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="diffModal" class="modal diff-modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title" id="diffModalTitle">差异对比</h2>
+        <button id="closeDiffModal" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <div id="diffSummary"></div>
+        <div id="diffSections" class="diff-sections"></div>
+      </div>
+      <div class="modal-foot">
+        <button id="closeDiffModal2" class="secondary">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="restoreConfirmModal" class="modal restore-confirm-modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title">确认恢复快照</h2>
+        <button id="closeRestoreModal" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <div id="restoreWarn" class="restore-warn"></div>
+        <div id="restoreInfo" class="restore-info"></div>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelRestore" class="secondary">取消</button>
+        <button id="confirmRestoreBtn" class="danger">确认恢复</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cleanupModal" class="modal cleanup-modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title">清理旧快照</h2>
+        <button id="closeCleanupModal" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <div id="cleanupOptions" class="cleanup-options"></div>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelCleanup" class="secondary">取消</button>
+        <button id="confirmCleanupBtn" class="warn">确认清理</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="snapshotImportModal" class="modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title">导入快照</h2>
+        <button id="closeSnapshotImport" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <div class="import-step">
+          <label>选择快照 JSON 文件
+            <input id="snapshotImportFile" type="file" accept="application/json,.json">
+          </label>
+          <p class="meta">请选择之前通过「导出」功能保存的快照文件。</p>
+        </div>
+        <div id="snapshotImportError" class="import-error" hidden></div>
+        <div id="snapshotImportSummary"></div>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelSnapshotImport" class="secondary">取消</button>
+        <button id="confirmSnapshotImport" class="good" disabled>确认导入</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/storage.js"></script>
   <script src="js/packaging-storage.js"></script>
   <script src="js/packaging-logic.js"></script>
   <script src="js/scheduling.js"></script>
   <script src="js/purchase.js"></script>
+  <script src="js/storageMigration.js"></script>
+  <script src="js/snapshotService.js"></script>
+  <script src="js/diffCalculator.js"></script>
+  <script src="js/snapshotUI.js"></script>
   <script>
   (function() {
     const stages = Stages;
@@ -767,6 +888,7 @@
     const templateListEl = document.querySelector("#templateList");
     const templatesPanel = document.querySelector("#templatesPanel");
     const purchasePanel = document.querySelector("#purchasePanel");
+    const snapshotsPanel = document.querySelector("#snapshotsPanel");
     const wireAdjustModal = document.querySelector("#wireAdjustModal");
     const wireAdjustTitle = document.querySelector("#wireAdjustTitle");
     const wireAdjustSpec = document.querySelector("#wireAdjustSpec");
@@ -965,6 +1087,7 @@
       templatesPanel.hidden = tab !== "templates";
       packagingPanel.hidden = tab !== "packaging";
       purchasePanel.hidden = tab !== "purchase";
+      snapshotsPanel.hidden = tab !== "snapshots";
       if (tab === "orders") {
         renderOrders();
       } else if (tab === "wire") {
@@ -986,6 +1109,8 @@
           packaging: PackagingStorage.packaging
         });
         PurchaseModule.renderAll();
+      } else if (tab === "snapshots") {
+        SnapshotUI.renderAll();
       } else {
         render();
       }
@@ -2277,6 +2402,14 @@
       importStep2.hidden = true;
       importError.hidden = true;
       confirmImportBtn.disabled = true;
+
+      try {
+        const autoSnap = SnapshotService.create({ auto: true });
+        console.log("[Import] 自动创建快照:", autoSnap.name);
+      } catch (e) {
+        console.warn("[Import] 创建自动快照失败:", e.message);
+      }
+
       importModal.hidden = false;
     }
 
@@ -3197,6 +3330,30 @@
     );
 
     window.openScheduling = openScheduling;
+
+    SnapshotUI.init(
+      {
+        batches, orders, wireStock, wireFlow, inspections, templates,
+        packaging, packagingFlow, suppliers, purchaseOrders, purchaseFlow
+      },
+      {
+        onRestored: (snap) => {
+          refreshAll();
+        },
+        onSnapshotCreated: (snap) => {
+        }
+      }
+    );
+
+    const maxHintEl = document.querySelector("#snapshotMaxHint");
+    if (maxHintEl) maxHintEl.textContent = `最多保存 ${SnapshotService.MAX_SNAPSHOTS} 条快照`;
+
+    document.querySelector("#createSnapshotBtn")?.addEventListener("click", () => SnapshotUI.openCreateModal());
+    document.querySelector("#cleanupSnapshotBtn")?.addEventListener("click", () => SnapshotUI.openCleanupModal());
+    document.querySelector("#importSnapshotBtn")?.addEventListener("click", () => SnapshotUI.openImportModal());
+    document.querySelector("#closeDiffModal2")?.addEventListener("click", () => SnapshotUI.closeDiffModal());
+
+    StorageMigration.migrateIfNeeded();
   })();
   </script>
 </body>
