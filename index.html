@@ -4,1073 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>手工鱼钩弯制工作室</title>
-  <style>
-    :root {
-      --bg: #f6f3ee;
-      --panel: #ffffff;
-      --ink: #20242a;
-      --muted: #68717d;
-      --line: #d9d2c7;
-      --blue: #27667b;
-      --green: #4f7d52;
-      --red: #a5423b;
-      --gold: #b7812f;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--ink);
-      background: var(--bg);
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 16px;
-      padding: 22px 28px 14px;
-      border-bottom: 1px solid var(--line);
-      background: #fbfaf7;
-    }
-    h1 { margin: 0; font-size: 26px; letter-spacing: 0; }
-    .sub { color: var(--muted); margin-top: 6px; font-size: 14px; }
-    main { padding: 20px 28px 32px; display: grid; gap: 18px; }
-    .toolbar, .form, .stats, .board { display: grid; gap: 12px; }
-    .toolbar {
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
-      align-items: end;
-      padding: 14px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-    label { display: grid; gap: 5px; font-size: 12px; color: var(--muted); }
-    input, select, textarea, button {
-      font: inherit;
-      border-radius: 6px;
-    }
-    input, select, textarea {
-      border: 1px solid var(--line);
-      padding: 9px 10px;
-      background: #fff;
-      color: var(--ink);
-      min-width: 0;
-    }
-    textarea { min-height: 74px; resize: vertical; }
-    button {
-      border: 0;
-      padding: 9px 11px;
-      background: var(--blue);
-      color: #fff;
-      cursor: pointer;
-      min-height: 38px;
-    }
-    button.secondary { background: #59636d; }
-    button.good { background: var(--green); }
-    button.warn { background: var(--gold); }
-    button.danger { background: var(--red); }
-    .stats {
-      grid-template-columns: repeat(7, minmax(92px, 1fr));
-    }
-    .stat {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-    }
-    .stat b { display: block; font-size: 22px; margin-top: 5px; }
-    .layout {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 18px;
-      align-items: start;
-    }
-    .form {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      position: sticky;
-      top: 12px;
-    }
-    .form h2, .panel-title { margin: 0; font-size: 17px; }
-    .board {
-      grid-template-columns: repeat(7, minmax(170px, 1fr));
-      overflow-x: auto;
-      padding-bottom: 8px;
-    }
-    .col {
-      min-height: 360px;
-      background: #fffefa;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 10px;
-    }
-    .col h3 {
-      margin: 0 0 10px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 15px;
-    }
-    .card {
-      background: var(--panel);
-      border: 1px solid #ded8ce;
-      border-left: 4px solid var(--blue);
-      border-radius: 7px;
-      padding: 10px;
-      margin-bottom: 10px;
-      display: grid;
-      gap: 8px;
-    }
-    .card strong { font-size: 15px; }
-    .meta { color: var(--muted); font-size: 12px; line-height: 1.45; }
-    .row { display: flex; gap: 7px; flex-wrap: wrap; }
-    .row button { flex: 1; min-width: 66px; padding: 7px 8px; font-size: 12px; }
-    .empty { color: var(--muted); font-size: 13px; padding: 12px 4px; }
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 80;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .modal[hidden] { display: none; }
-    .modal-mask {
-      position: absolute;
-      inset: 0;
-      background: rgba(32, 36, 42, 0.45);
-    }
-    .modal-panel {
-      position: relative;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      width: min(920px, 100%);
-      max-height: 86vh;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
-    }
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--line);
-      background: #fbfaf7;
-    }
-    .modal-body {
-      padding: 16px 18px;
-      overflow: auto;
-    }
-    .modal-foot {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      padding: 12px 18px;
-      border-top: 1px solid var(--line);
-      background: #fbfaf7;
-    }
-    .import-step { display: grid; gap: 14px; }
-    .import-step[hidden] { display: none; }
-    .import-summary {
-      padding: 10px 14px;
-      background: #eef3ea;
-      border: 1px solid #c9d8be;
-      border-radius: 6px;
-      color: #3b5a32;
-      font-size: 13px;
-    }
-    .import-error {
-      padding: 10px 14px;
-      background: #f6e2e0;
-      border: 1px solid #e0b6b1;
-      border-radius: 6px;
-      color: #7d2b25;
-      font-size: 13px;
-      white-space: pre-wrap;
-    }
-    .preview-wrap {
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      overflow: auto;
-      max-height: 52vh;
-    }
-    .preview-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    .preview-table th, .preview-table td {
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: top;
-    }
-    .preview-table th {
-      position: sticky;
-      top: 0;
-      background: #fbfaf7;
-      font-weight: 600;
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .preview-table tbody tr:last-child td { border-bottom: 0; }
-    .preview-table tr.row-invalid { background: #fdf1ef; }
-    .preview-table tr.row-valid { background: #f5faf1; }
-    .status-ok { color: var(--green); font-weight: 600; }
-    .status-err { color: var(--red); font-weight: 600; }
-    .field-err { color: var(--red); }
-
-    .drawer {
-      position: fixed;
-      inset: 0;
-      z-index: 60;
-      display: flex;
-      justify-content: flex-end;
-      pointer-events: none;
-    }
-    .drawer[hidden] { display: none; }
-    .drawer-mask {
-      position: absolute;
-      inset: 0;
-      background: rgba(32, 36, 42, 0.4);
-      opacity: 0;
-      transition: opacity 0.25s ease;
-      pointer-events: auto;
-    }
-    .drawer.open .drawer-mask {
-      opacity: 1;
-    }
-    .drawer-panel {
-      position: relative;
-      background: var(--panel);
-      border-left: 1px solid var(--line);
-      width: 480px;
-      max-width: 100%;
-      height: 100%;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      overflow: hidden;
-      transform: translateX(100%);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: auto;
-      box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
-    }
-    .drawer.open .drawer-panel {
-      transform: translateX(0);
-    }
-    .drawer-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--line);
-      background: #fbfaf7;
-    }
-    .drawer-head h2 {
-      margin: 0;
-      font-size: 18px;
-    }
-    .drawer-body {
-      padding: 18px 20px;
-      overflow: auto;
-      display: grid;
-      gap: 18px;
-      align-content: start;
-    }
-    .drawer-foot {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      padding: 12px 20px;
-      border-top: 1px solid var(--line);
-      background: #fbfaf7;
-    }
-    .detail-section {
-      display: grid;
-      gap: 10px;
-    }
-    .detail-section h3 {
-      margin: 0;
-      font-size: 14px;
-      color: var(--muted);
-      font-weight: 600;
-      text-transform: none;
-      letter-spacing: 0.3px;
-    }
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    .detail-item {
-      display: grid;
-      gap: 4px;
-    }
-    .detail-item label {
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .detail-item .value {
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .stage-indicator {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      background: #eef3ea;
-      border: 1px solid #c9d8be;
-      border-radius: 6px;
-      color: #3b5a32;
-      font-size: 14px;
-    }
-    .stage-dots {
-      display: flex;
-      gap: 4px;
-      margin-top: 6px;
-    }
-    .stage-dot {
-      flex: 1;
-      height: 6px;
-      border-radius: 3px;
-      background: #e5e1d8;
-    }
-    .stage-dot.active {
-      background: var(--green);
-    }
-    .stage-dot.past {
-      background: #a3c29a;
-    }
-    .note-editor {
-      display: grid;
-      gap: 8px;
-    }
-    .note-editor textarea {
-      min-height: 90px;
-      font-size: 14px;
-    }
-    .note-display {
-      padding: 12px;
-      background: #fbfaf7;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      font-size: 14px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      min-height: 60px;
-    }
-    .note-empty {
-      color: var(--muted);
-      font-style: italic;
-    }
-    .history-list {
-      display: grid;
-      gap: 8px;
-      max-height: 240px;
-      overflow: auto;
-    }
-    .history-item {
-      padding: 10px 12px;
-      background: #fbfaf7;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      font-size: 13px;
-      line-height: 1.5;
-      border-left: 3px solid var(--blue);
-    }
-    .history-item.defect {
-      border-left-color: var(--red);
-      background: #fdf6f5;
-    }
-    .history-item.stage {
-      border-left-color: var(--green);
-    }
-    .defect-summary {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    .defect-card {
-      padding: 14px;
-      background: #fdf6f5;
-      border: 1px solid #e0b6b1;
-      border-radius: 6px;
-      text-align: center;
-    }
-    .defect-card .num {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--red);
-      line-height: 1;
-    }
-    .defect-card .label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .defect-rate {
-      padding: 14px;
-      background: #fff8e8;
-      border: 1px solid #e4c88a;
-      border-radius: 6px;
-      text-align: center;
-    }
-    .defect-rate .num {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--gold);
-      line-height: 1;
-    }
-    .defect-rate .label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .card-clickable {
-      cursor: pointer;
-      transition: box-shadow 0.15s ease, transform 0.15s ease;
-    }
-    .card-clickable:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      transform: translateY(-1px);
-    }
-    .drawer-edit-buttons {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-    .tabs {
-      display: flex;
-      gap: 4px;
-      border-bottom: 1px solid var(--line);
-      margin-bottom: 18px;
-    }
-    .tab-btn {
-      padding: 10px 18px;
-      background: transparent;
-      color: var(--muted);
-      border: 0;
-      border-radius: 6px 6px 0 0;
-      cursor: pointer;
-      font-size: 14px;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      min-height: auto;
-    }
-    .tab-btn.active {
-      color: var(--blue);
-      border-bottom-color: var(--blue);
-      background: transparent;
-      font-weight: 600;
-    }
-    .tab-btn:hover:not(.active) {
-      background: rgba(39, 102, 123, 0.06);
-    }
-    .tab-panel[hidden] { display: none; }
-    .order-stats {
-      grid-template-columns: repeat(4, minmax(140px, 1fr));
-    }
-    .order-list {
-      display: grid;
-      gap: 12px;
-    }
-    .order-card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px 16px;
-      display: grid;
-      gap: 10px;
-    }
-    .order-card.overdue {
-      border-left: 4px solid var(--red);
-      background: #fdf6f5;
-    }
-    .order-card.warning {
-      border-left: 4px solid var(--gold);
-      background: #fff8e8;
-    }
-    .order-card.completed {
-      border-left: 4px solid var(--green);
-      background: #f5faf1;
-    }
-    .order-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .order-head strong {
-      font-size: 16px;
-    }
-    .order-status {
-      font-size: 12px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .order-status.overdue {
-      background: #f6e2e0;
-      color: var(--red);
-    }
-    .order-status.warning {
-      background: #fff3d6;
-      color: var(--gold);
-    }
-    .order-status.progress {
-      background: #e6eef1;
-      color: var(--blue);
-    }
-    .order-status.completed {
-      background: #eef3ea;
-      color: var(--green);
-    }
-    .progress-bar {
-      height: 8px;
-      background: #e5e1d8;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: var(--green);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-    .progress-fill.warning {
-      background: var(--gold);
-    }
-    .progress-fill.overdue {
-      background: var(--red);
-    }
-    .batch-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .batch-tag {
-      font-size: 11px;
-      padding: 2px 8px;
-      background: #eef3ea;
-      color: var(--green);
-      border-radius: 10px;
-    }
-    .batch-tag.stage {
-      background: #e6eef1;
-      color: var(--blue);
-    }
-    .order-form {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      display: grid;
-      gap: 12px;
-    }
-    .order-form h2 {
-      margin: 0;
-      font-size: 17px;
-    }
-    .order-form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    .order-form-grid .full {
-      grid-column: 1 / -1;
-    }
-    .order-detail-section {
-      display: grid;
-      gap: 10px;
-    }
-    .order-detail-section h3 {
-      margin: 0;
-      font-size: 14px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-    .order-detail-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    .batch-assign-list {
-      display: grid;
-      gap: 8px;
-      max-height: 320px;
-      overflow: auto;
-    }
-    .batch-assign-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px;
-      background: #fbfaf7;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      gap: 10px;
-    }
-    .batch-assign-item.assigned {
-      background: #eef3ea;
-      border-color: #c9d8be;
-    }
-    .batch-assign-item .info {
-      flex: 1;
-      min-width: 0;
-    }
-    .batch-assign-item .info strong {
-      font-size: 14px;
-    }
-    .batch-assign-item .info .meta {
-      font-size: 12px;
-    }
-    .empty-orders {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .order-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      background: #e6eef1;
-      color: var(--blue);
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .wire-stats {
-      grid-template-columns: repeat(4, minmax(140px, 1fr));
-    }
-    .wire-layout {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 18px;
-      align-items: start;
-    }
-    .wire-form {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      display: grid;
-      gap: 12px;
-      position: sticky;
-      top: 12px;
-    }
-    .wire-form h2 {
-      margin: 0;
-      font-size: 17px;
-    }
-    .wire-form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    .wire-form-grid .full {
-      grid-column: 1 / -1;
-    }
-    .wire-list {
-      display: grid;
-      gap: 12px;
-    }
-    .wire-card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px 16px;
-      display: grid;
-      gap: 10px;
-    }
-    .wire-card.low {
-      border-left: 4px solid var(--gold);
-      background: #fff8e8;
-    }
-    .wire-card.out {
-      border-left: 4px solid var(--red);
-      background: #fdf6f5;
-    }
-    .wire-card.good {
-      border-left: 4px solid var(--green);
-    }
-    .wire-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .wire-head strong {
-      font-size: 16px;
-    }
-    .wire-qty {
-      font-size: 24px;
-      font-weight: 700;
-    }
-    .wire-qty.good { color: var(--green); }
-    .wire-qty.low { color: var(--gold); }
-    .wire-qty.out { color: var(--red); }
-    .wire-meta {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    .wire-unit {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-left: 4px;
-    }
-    .wire-stock-warning {
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .wire-stock-warning.warn {
-      background: #fff3d6;
-      color: #8a631f;
-      border: 1px solid #e4c88a;
-    }
-    .wire-stock-warning.error {
-      background: #f6e2e0;
-      color: #7d2b25;
-      border: 1px solid #e0b6b1;
-    }
-    .wire-stock-warning.ok {
-      background: #eef3ea;
-      color: #3b5a32;
-      border: 1px solid #c9d8be;
-    }
-    .wire-flow-list {
-      display: grid;
-      gap: 8px;
-      max-height: 400px;
-      overflow: auto;
-      margin-top: 8px;
-    }
-    .wire-flow-item {
-      padding: 10px 12px;
-      background: #fbfaf7;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      font-size: 13px;
-      line-height: 1.5;
-      border-left: 3px solid var(--muted);
-    }
-    .wire-flow-item.in {
-      border-left-color: var(--green);
-      background: #f5faf1;
-    }
-    .wire-flow-item.out {
-      border-left-color: var(--blue);
-      background: #eef6f8;
-    }
-    .wire-flow-item.adjust {
-      border-left-color: var(--gold);
-      background: #fff8e8;
-    }
-    .wire-flow-item.delete {
-      border-left-color: var(--red);
-      background: #fdf6f5;
-    }
-    .wire-flow-time {
-      color: var(--muted);
-      font-size: 11px;
-      margin-top: 4px;
-    }
-    .wire-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .wire-actions button {
-      flex: 1;
-      min-width: 66px;
-      padding: 7px 8px;
-      font-size: 12px;
-    }
-    .wire-empty {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .wire-section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .wire-section-title h2 {
-      margin: 0;
-      font-size: 17px;
-    }
-    .wire-adjust-modal .modal-panel {
-      width: min(480px, 100%);
-    }
-    .wire-adjust-form {
-      display: grid;
-      gap: 12px;
-    }
-    .wire-batch-hint {
-      font-size: 12px;
-      color: var(--muted);
-      padding: 6px 8px;
-      background: #fbfaf7;
-      border-radius: 4px;
-      line-height: 1.5;
-    }
-    .wire-batch-hint strong {
-      color: var(--ink);
-    }
-    .inspection-summary {
-      display: grid;
-      gap: 12px;
-    }
-    .inspection-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    .inspection-stat {
-      padding: 12px;
-      background: #fbfaf7;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      text-align: center;
-    }
-    .inspection-stat .num {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--blue);
-      line-height: 1;
-    }
-    .inspection-stat .label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .inspection-stat.pending .num {
-      color: var(--gold);
-    }
-    .inspection-stat.passed .num {
-      color: var(--green);
-    }
-    .inspection-list {
-      display: grid;
-      gap: 10px;
-      max-height: 280px;
-      overflow: auto;
-    }
-    .inspection-item {
-      padding: 12px;
-      background: #fbfaf7;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      border-left: 3px solid var(--blue);
-    }
-    .inspection-item.pending {
-      border-left-color: var(--gold);
-      background: #fffdf5;
-    }
-    .inspection-item.passed {
-      border-left-color: var(--green);
-      background: #f5faf1;
-    }
-    .inspection-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .inspection-head strong {
-      font-size: 14px;
-    }
-    .inspection-status {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .inspection-status.pending {
-      background: #fff3d6;
-      color: var(--gold);
-    }
-    .inspection-status.passed {
-      background: #eef3ea;
-      color: var(--green);
-    }
-    .inspection-status.not_required {
-      background: #e6eef1;
-      color: var(--blue);
-    }
-    .inspection-meta {
-      display: grid;
-      gap: 4px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .inspection-defects {
-      margin-top: 8px;
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-    .defect-tag {
-      font-size: 11px;
-      padding: 2px 8px;
-      background: #f6e2e0;
-      color: var(--red);
-      border-radius: 10px;
-    }
-    .inspection-empty {
-      padding: 20px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-      background: #fbfaf7;
-      border: 1px dashed var(--line);
-      border-radius: 6px;
-    }
-    .inspection-form {
-      display: grid;
-      gap: 12px;
-    }
-    .inspection-form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    .inspection-form-grid .full {
-      grid-column: 1 / -1;
-    }
-    .defect-checkboxes {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
-    .defect-checkboxes label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: var(--ink);
-      cursor: pointer;
-    }
-    .defect-checkboxes input[type="checkbox"] {
-      width: auto;
-      min-width: auto;
-    }
-    .recheck-badge {
-      display: inline-block;
-      font-size: 11px;
-      padding: 2px 8px;
-      background: #fff3d6;
-      color: var(--gold);
-      border-radius: 10px;
-      font-weight: 600;
-      margin-top: 4px;
-    }
-    .card.pending-recheck {
-      border-left-color: var(--gold);
-      background: #fffdf5;
-    }
-    .card.pending-recheck:hover {
-      box-shadow: 0 4px 12px rgba(183, 129, 47, 0.15);
-    }
-    .template-card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px 16px;
-      display: grid;
-      gap: 10px;
-      border-left: 4px solid var(--blue);
-    }
-    .template-card .template-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .template-card .template-head strong {
-      font-size: 16px;
-    }
-    .template-card .template-meta {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    .template-card .template-field {
-      display: inline-block;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-right: 4px;
-      margin-top: 4px;
-    }
-    .template-card .template-field.wire {
-      background: #e6eef1;
-      color: var(--blue);
-    }
-    .template-card .template-field.owner {
-      background: #eef3ea;
-      color: var(--green);
-    }
-    .template-card .template-field.threshold {
-      background: #fff3d6;
-      color: var(--gold);
-    }
-    .template-empty {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .template-applied-hint {
-      padding: 6px 10px;
-      background: #eef3ea;
-      border: 1px solid #c9d8be;
-      border-radius: 6px;
-      font-size: 12px;
-      color: #3b5a32;
-    }
-    .threshold-warn {
-      display: inline-block;
-      font-size: 11px;
-      padding: 2px 8px;
-      background: #f6e2e0;
-      color: var(--red);
-      border-radius: 10px;
-      font-weight: 600;
-    }
-    @media (max-width: 920px) {
-      header { display: block; padding: 18px; }
-      main { padding: 16px; }
-      .toolbar, .layout, .wire-layout { grid-template-columns: 1fr; }
-      .stats { grid-template-columns: repeat(2, 1fr); }
-      .order-stats, .wire-stats { grid-template-columns: repeat(2, 1fr); }
-      .form, .wire-form { position: static; }
-      .drawer-panel { width: 100%; max-width: 100%; }
-      .detail-grid { grid-template-columns: 1fr; }
-      .order-form-grid, .wire-form-grid { grid-template-columns: 1fr; }
-      .order-detail-grid { grid-template-columns: 1fr; }
-      .defect-summary { grid-template-columns: 1fr; }
-      .inspection-stats { grid-template-columns: 1fr; }
-      .inspection-form-grid { grid-template-columns: 1fr; }
-      .defect-checkboxes { grid-template-columns: 1fr; }
-      .drawer-head, .drawer-body, .drawer-foot { padding-left: 16px; padding-right: 16px; }
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header>
@@ -1541,68 +475,50 @@
     </div>
   </div>
 
+  <div id="schedulingModal" class="modal" hidden>
+    <div class="modal-mask" id="schedulingModalMask"></div>
+    <div class="modal-panel" style="width: min(1000px, 100%);">
+      <div class="modal-head">
+        <h2 class="panel-title" id="schedulingModalTitle">排产计划</h2>
+        <button id="closeSchedulingModal" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <div class="scheduling-layout">
+          <div id="schedulingSummary"></div>
+
+          <div class="validation-warnings" id="validationWarnings"></div>
+
+          <div class="suggested-batches">
+            <h3>建议批次列表</h3>
+            <div class="suggested-batch-list" id="suggestedBatchList"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelScheduling" class="secondary">取消</button>
+        <button id="generateAllBatches" class="good">一键生成批次</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/scheduling.js"></script>
   <script>
-    const stages = ["剪料", "退火", "弯钩", "淬火", "回火", "打磨", "验收"];
-    const storageKey = "zfl41Batches";
-    const ordersStorageKey = "zfl41Orders";
-    const seed = [
-      { id: crypto.randomUUID(), wire: "0.8mm 蓝火钢丝", hook: "溪流倒刺 6 号", qty: 120, owner: "林师傅", stage: "弯钩", defects: 3, note: "弯嘴角度偏小的单独复查", history: ["创建批次", "推进到弯钩"], orderId: null },
-      { id: crypto.randomUUID(), wire: "1.0mm 高碳钢丝", hook: "海钓长柄 2 号", qty: 60, owner: "阿青", stage: "回火", defects: 1, note: "回火后抽检 12 枚", history: ["创建批次", "完成淬火"], orderId: null },
-      { id: crypto.randomUUID(), wire: "0.6mm 软调钢丝", hook: "袖钩 4 号", qty: 200, owner: "小孟", stage: "剪料", defects: 0, note: "先做样钩 10 枚", history: ["创建批次"], orderId: null }
-    ];
-    const orderSeed = [
-      {
-        id: crypto.randomUUID(),
-        customer: "老王渔具店",
-        hook: "袖钩 4 号",
-        targetQty: 500,
-        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-        note: "需要单独包装，每50枚一袋",
-        createdAt: new Date().toISOString(),
-        history: [`${new Date().toLocaleString()} 创建订单`]
-      },
-      {
-        id: crypto.randomUUID(),
-        customer: "张总钓具批发",
-        hook: "溪流倒刺 6 号",
-        targetQty: 200,
-        dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-        note: "急单，优先处理",
-        createdAt: new Date().toISOString(),
-        history: [`${new Date().toLocaleString()} 创建订单`]
-      }
-    ];
-    const wireStorageKey = "zfl41WireStock";
-    const wireFlowStorageKey = "zfl41WireFlow";
-    const inspectionStorageKey = "zfl41Inspections";
-    const templateStorageKey = "zfl41Templates";
-    const inspectionSeed = [];
+  (function() {
+    const stages = Stages;
     const defectTypeOptions = ["外观不良", "尺寸偏差", "硬度不足", "弹性不够", "钩尖不锋利", "镀层问题", "其他"];
     const conclusionOptions = ["合格通过", "返工处理", "报废处理", "条件放行", "待复检"];
     const recheckStatusOptions = ["not_required", "pending", "passed"];
-    const wireSeed = [
-      { id: crypto.randomUUID(), spec: "0.8mm 蓝火钢丝", qty: 2500, unit: "米", safeStock: 500, note: "供应商A，高碳钢", createdAt: new Date().toISOString() },
-      { id: crypto.randomUUID(), spec: "1.0mm 高碳钢丝", qty: 1200, unit: "米", safeStock: 300, note: "供应商B，进口材质", createdAt: new Date().toISOString() },
-      { id: crypto.randomUUID(), spec: "0.6mm 软调钢丝", qty: 80, unit: "米", safeStock: 200, note: "供应商A", createdAt: new Date().toISOString() }
-    ];
-    const wireFlowSeed = [
-      { id: crypto.randomUUID(), wireId: wireSeed[0].id, spec: wireSeed[0].spec, type: "in", qty: 2500, balance: 2500, reason: "初始入库", time: new Date().toISOString() },
-      { id: crypto.randomUUID(), wireId: wireSeed[1].id, spec: wireSeed[1].spec, type: "in", qty: 1200, balance: 1200, reason: "初始入库", time: new Date().toISOString() },
-      { id: crypto.randomUUID(), wireId: wireSeed[2].id, spec: wireSeed[2].spec, type: "in", qty: 80, balance: 80, reason: "初始入库", time: new Date().toISOString() }
-    ];
-    const templateSeed = [
-      { id: crypto.randomUUID(), hookName: "袖钩 4 号", wire: "0.6mm 软调钢丝", owner: "小孟", defectThreshold: 3, processNote: "退火温度 650°C，弯嘴角度 45°，打磨后需做样钩 10 枚抽检", createdAt: new Date().toISOString() },
-      { id: crypto.randomUUID(), hookName: "溪流倒刺 6 号", wire: "0.8mm 蓝火钢丝", owner: "林师傅", defectThreshold: 5, processNote: "退火温度 700°C，弯嘴角度偏小的需单独复查", createdAt: new Date().toISOString() },
-      { id: crypto.randomUUID(), hookName: "海钓长柄 2 号", wire: "1.0mm 高碳钢丝", owner: "阿青", defectThreshold: 2, processNote: "回火后抽检 12 枚，硬度需达标", createdAt: new Date().toISOString() }
-    ];
-    let wireStock = JSON.parse(localStorage.getItem(wireStorageKey) || "null") || wireSeed;
-    let wireFlow = JSON.parse(localStorage.getItem(wireFlowStorageKey) || "null") || wireFlowSeed;
-    let inspections = JSON.parse(localStorage.getItem(inspectionStorageKey) || "null") || inspectionSeed;
-    let batches = JSON.parse(localStorage.getItem(storageKey) || "null") || seed;
-    let orders = JSON.parse(localStorage.getItem(ordersStorageKey) || "null") || orderSeed;
+
+    const initialData = Storage.loadAll();
+    let wireStock = initialData.wireStock;
+    let wireFlow = initialData.wireFlow;
+    let inspections = initialData.inspections;
+    let batches = initialData.batches;
+    let orders = initialData.orders;
+    let templates = initialData.templates;
     batches.forEach(b => { if (b.orderId === undefined) b.orderId = null; });
     batches.forEach(b => { if (b.templateId === undefined) b.templateId = null; });
-    let templates = JSON.parse(localStorage.getItem(templateStorageKey) || "null") || templateSeed;
     let currentOrderId = null;
     let currentTab = "batches";
     let currentWireId = null;
@@ -1645,49 +561,43 @@
     const wireAdjustReason = document.querySelector("#wireAdjustReason");
 
     function save() {
-      localStorage.setItem(storageKey, JSON.stringify(batches));
+      Storage.saveBatches(batches);
     }
 
     function saveOrders() {
-      localStorage.setItem(ordersStorageKey, JSON.stringify(orders));
+      Storage.saveOrders(orders);
     }
 
     function saveWire() {
-      localStorage.setItem(wireStorageKey, JSON.stringify(wireStock));
+      Storage.saveWireStock(wireStock);
     }
 
     function saveWireFlow() {
-      localStorage.setItem(wireFlowStorageKey, JSON.stringify(wireFlow));
+      Storage.saveWireFlow(wireFlow);
     }
 
     function saveInspections() {
-      localStorage.setItem(inspectionStorageKey, JSON.stringify(inspections));
+      Storage.saveInspections(inspections);
     }
 
     function saveTemplates() {
-      localStorage.setItem(templateStorageKey, JSON.stringify(templates));
+      Storage.saveTemplates(templates);
     }
 
+    const _getBatchThresholdWarning = window.getBatchThresholdWarning;
+    const _getBatchInspections = window.getBatchInspections;
+    const _getBatchRecheckStatus = window.getBatchRecheckStatus;
+
     function getBatchThresholdWarning(batch) {
-      if (!batch.templateId) return null;
-      const tpl = templates.find(t => t.id === batch.templateId);
-      if (!tpl || !tpl.defectThreshold) return null;
-      if (batch.defects > tpl.defectThreshold) {
-        return { threshold: tpl.defectThreshold, actual: batch.defects, hookName: tpl.hookName };
-      }
-      return null;
+      return _getBatchThresholdWarning(batch, templates);
     }
 
     function getBatchInspections(batchId) {
-      return inspections.filter(i => i.batchId === batchId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      return _getBatchInspections(batchId, inspections);
     }
 
     function getBatchRecheckStatus(batchId) {
-      const batchInsp = getBatchInspections(batchId);
-      if (batchInsp.length === 0) return null;
-      if (batchInsp.some(item => item.recheckStatus === "pending")) return "pending";
-      const latest = batchInsp[0];
-      return latest.recheckStatus;
+      return _getBatchRecheckStatus(batchId, inspections);
     }
 
     function getInspectionSummary(batchId) {
@@ -1796,42 +706,30 @@
       saveWireFlow();
     }
 
+    const _getOrderBatches = window.getOrderBatches;
+    const _getOrderProgress = window.getOrderProgress;
+    const _getOrderStatus = window.getOrderStatus;
+    const _getWireStatus = window.getWireStatus;
+    const _estimateWireUsage = window.estimateWireUsage;
+
     function getOrderBatches(orderId) {
-      return batches.filter(b => b.orderId === orderId);
+      return _getOrderBatches(orderId, batches);
     }
 
     function getOrderProgress(orderId) {
-      const orderBatches = getOrderBatches(orderId);
-      if (orderBatches.length === 0) return { completedQty: 0, assignedQty: 0, progress: 0 };
-      const assignedQty = orderBatches.reduce((sum, b) => sum + Number(b.qty), 0);
-      const completedQty = orderBatches
-        .filter(b => b.stage === "验收")
-        .reduce((sum, b) => sum + (Number(b.qty) - Number(b.defects)), 0);
-      const order = orders.find(o => o.id === orderId);
-      const progress = order ? Math.min(100, (completedQty / Number(order.targetQty)) * 100) : 0;
-      return { completedQty, assignedQty, progress };
+      return _getOrderProgress(orderId, orders, batches);
     }
 
     function getOrderStatus(orderId) {
-      const order = orders.find(o => o.id === orderId);
-      if (!order) return { status: "progress", label: "进行中", days: 0 };
-      const { progress } = getOrderProgress(orderId);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const dueDate = new Date(order.dueDate);
-      dueDate.setHours(0, 0, 0, 0);
-      const diffTime = dueDate - today;
-      const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (progress >= 100) {
-        return { status: "completed", label: "已完成", days };
-      }
-      if (days < 0) {
-        return { status: "overdue", label: `已逾期 ${Math.abs(days)} 天`, days };
-      }
-      if (days <= 3 && progress < 80) {
-        return { status: "warning", label: `剩余 ${days} 天`, days };
-      }
-      return { status: "progress", label: `剩余 ${days} 天`, days };
+      return _getOrderStatus(orderId, orders, batches);
+    }
+
+    function getWireStatus(wire) {
+      return _getWireStatus(wire);
+    }
+
+    function estimateWireUsage(batchQty) {
+      return _estimateWireUsage(batchQty);
     }
 
     function switchTab(tab) {
@@ -1979,24 +877,29 @@
         const { completedQty, assignedQty, progress } = getOrderProgress(order.id);
         const assignedBatches = getOrderBatches(order.id);
         const progressClass = status === "overdue" ? "overdue" : (status === "warning" ? "warning" : "");
-        return `<div class="order-card ${status}" onclick="openOrderDetail('${order.id}')">
-          <div class="order-head">
-            <div>
-              <strong>${order.customer} · ${order.hook}</strong>
-              <div class="meta">目标 ${order.targetQty} 枚 · 已分配 ${assignedQty} 枚 · 已完成 ${completedQty} 枚</div>
+        return `<div class="order-card ${status}">
+          <div onclick="openOrderDetail('${order.id}')">
+            <div class="order-head">
+              <div>
+                <strong>${order.customer} · ${order.hook}</strong>
+                <div class="meta">目标 ${order.targetQty} 枚 · 已分配 ${assignedQty} 枚 · 已完成 ${completedQty} 枚</div>
+              </div>
+              <span class="order-status ${status}">${label}</span>
             </div>
-            <span class="order-status ${status}">${label}</span>
+            <div class="progress-bar">
+              <div class="progress-fill ${progressClass}" style="width: ${progress.toFixed(1)}%;"></div>
+            </div>
+            <div class="meta">交付日期：${order.dueDate} · 完成进度：${progress.toFixed(1)}%</div>
+            <div class="batch-tags">
+              <span class="batch-tag">${assignedBatches.length} 个批次</span>
+              ${assignedBatches.slice(0, 3).map(b => `<span class="batch-tag stage">${b.stage} · ${b.qty}枚</span>`).join("")}
+              ${assignedBatches.length > 3 ? `<span class="batch-tag">+${assignedBatches.length - 3} 更多</span>` : ""}
+            </div>
+            ${order.note ? `<div class="meta">备注：${order.note}</div>` : ""}
           </div>
-          <div class="progress-bar">
-            <div class="progress-fill ${progressClass}" style="width: ${progress.toFixed(1)}%;"></div>
+          <div class="order-card-actions">
+            <button class="secondary" onclick="event.stopPropagation(); openScheduling('${order.id}')">排产计划</button>
           </div>
-          <div class="meta">交付日期：${order.dueDate} · 完成进度：${progress.toFixed(1)}%</div>
-          <div class="batch-tags">
-            <span class="batch-tag">${assignedBatches.length} 个批次</span>
-            ${assignedBatches.slice(0, 3).map(b => `<span class="batch-tag stage">${b.stage} · ${b.qty}枚</span>`).join("")}
-            ${assignedBatches.length > 3 ? `<span class="batch-tag">+${assignedBatches.length - 3} 更多</span>` : ""}
-          </div>
-          ${order.note ? `<div class="meta">备注：${order.note}</div>` : ""}
         </div>`;
       }).join("");
     }
@@ -2004,17 +907,6 @@
     function renderOrders() {
       renderOrderStats();
       renderOrderList();
-    }
-
-    function estimateWireUsage(batchQty) {
-      const perHook = 0.08;
-      return Math.ceil(Number(batchQty) * perHook * 100) / 100;
-    }
-
-    function getWireStatus(wire) {
-      if (wire.qty <= 0) return "out";
-      if (wire.qty < wire.safeStock) return "low";
-      return "good";
     }
 
     function refreshBatchWireOptions() {
@@ -3501,6 +2393,43 @@
     refreshBatchWireOptions();
     refreshTemplateSelect();
     render();
+
+    function openScheduling(orderId) {
+      Scheduling.updateData({ batches, orders, wireStock, wireFlow, templates });
+      Scheduling.openModal(orderId);
+    }
+
+    function refreshAll() {
+      const data = Storage.loadAll();
+      batches = data.batches;
+      orders = data.orders;
+      wireStock = data.wireStock;
+      wireFlow = data.wireFlow;
+      inspections = data.inspections;
+      templates = data.templates;
+      render();
+      renderOrders();
+      renderWire();
+      renderTemplates();
+    }
+
+    Scheduling.init(
+      { batches, orders, wireStock, wireFlow, templates },
+      {
+        onBatchesGenerated: (result) => {
+          batches = result.batches;
+          orders = result.orders;
+          wireStock = result.wireStock;
+          wireFlow = result.wireFlow;
+          templates = result.templates;
+          Storage.saveAll({ batches, orders, wireStock, wireFlow, inspections, templates });
+          refreshAll();
+        }
+      }
+    );
+
+    window.openScheduling = openScheduling;
+  })();
   </script>
 </body>
 </html>
