@@ -323,7 +323,7 @@ const PurchaseModule = {
           <div><span>缺口</span><b style="color: var(--red);">${s.shortfall.toFixed(2)} ${s.unit}</b></div>
         </div>
         <div class="wire-actions">
-          <button class="good" onclick="PurchaseModule.quickCreatePO('${s.spec}', ${s.suggestedQty})">快速下单 ${s.suggestedQty} ${s.unit}</button>
+          ${s.suggestedQty > 0 ? `<button class="good" onclick="PurchaseModule.quickCreatePO('${s.spec}', ${s.suggestedQty})">快速下单 ${s.suggestedQty} ${s.unit}</button>` : ""}
           <button class="secondary" onclick="PurchaseModule.showSubTab('purchaseOrders')">查看采购单</button>
         </div>
       </div>
@@ -694,11 +694,11 @@ const PurchaseModule = {
     const modal = document.getElementById("receiveModal");
     if (!modal) return;
     this.state.currentReceivePOId = poId;
-    document.getElementById("receiveOrderNo").textContent = po.orderNo;
-    document.getElementById("receiveWireSpec").textContent = po.wireSpec;
-    document.getElementById("receiveTotalQty").textContent = `${po.qty} ${po.unit}`;
-    document.getElementById("receiveReceivedQty").textContent = `${po.receivedQty} ${po.unit}`;
-    document.getElementById("receiveRemainingQty").textContent = `${po.qty - po.receivedQty} ${po.unit}`;
+    document.getElementById("receiveOrderNo").value = po.orderNo;
+    document.getElementById("receiveWireSpec").value = po.wireSpec;
+    document.getElementById("receiveTotalQty").value = `${po.qty} ${po.unit}`;
+    document.getElementById("receiveReceivedQty").value = `${po.receivedQty} ${po.unit}`;
+    document.getElementById("receiveRemainingQty").value = `${po.qty - po.receivedQty} ${po.unit}`;
     document.getElementById("receiveQty").value = po.qty - po.receivedQty;
     document.getElementById("receiveQty").max = po.qty - po.receivedQty;
     modal.hidden = false;
