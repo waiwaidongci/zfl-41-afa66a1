@@ -50,15 +50,16 @@ const Scheduling = {
 
     const defaultBatchSize = template ? Math.min(150, remainingQty) : Math.min(100, remainingQty);
 
-    this.populateOwnerSelect(template);
-    this.populateStageSelect();
     this.generateSuggestedBatches(order, template, wire, remainingQty, defaultBatchSize);
     this.renderSummary(order, template, wire, remainingQty, completedQty, assignedQty, progress);
-    this.renderSuggestedBatches();
-    this.validateAndRenderWarnings(order, template, wire, remainingQty);
+    this.populateOwnerSelect(template);
+    this.populateStageSelect();
 
     const batchSizeInput = document.getElementById("batchSizeInput");
     if (batchSizeInput) batchSizeInput.value = defaultBatchSize;
+
+    this.renderSuggestedBatches();
+    this.validateAndRenderWarnings(order, template, wire, remainingQty);
 
     const modalTitle = document.getElementById("schedulingModalTitle");
     if (modalTitle) {
@@ -210,8 +211,8 @@ const Scheduling = {
     const globalStage = document.getElementById("stageSelect")?.value || "剪料";
 
     this.state.suggestedBatches.forEach(b => {
-      if (globalOwner && !b.owner) b.owner = globalOwner;
-      if (!b.stage) b.stage = globalStage;
+      if (globalOwner) b.owner = globalOwner;
+      b.stage = globalStage;
     });
 
     this.renderSuggestedBatches();
