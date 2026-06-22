@@ -139,35 +139,40 @@ function getOrderBatches(orderId, batches) {
   return batches.filter(b => b.orderId === orderId);
 }
 
-function getOrderProgress(orderId, orders, batches) {
+function getOrderProgress(orderId, orders, batches, packaging) {
   const orderBatches = getOrderBatches(orderId, batches);
-  if (orderBatches.length === 0) return { completedQty: 0, assignedQty: 0, progress: 0 };
   const assignedQty = orderBatches.reduce((sum, b) => sum + Number(b.qty), 0);
   const completedQty = orderBatches
     .filter(b => b.stage === "验收")
     .reduce((sum, b) => sum + (Number(b.qty) - Number(b.defects)), 0);
   const order = orders.find(o => o.id === orderId);
   const progress = order ? Math.min(100, (completedQty / Number(order.targetQty)) * 100) : 0;
-  return { completedQty, assignedQty, progress };
+  const packagingList = packaging && Array.isArray(packaging) ? packaging : [];
+  const shippedQty = packagingList
+    .filter(p => p.orderId === orderId)
+    .reduce((sum, p) => sum + Number(p.shippedQty || 0), 0);
+  const deliveryProgress = order ? Math.min(100, (shippedQty / Number(order.targetQty)) * 100) : 0;
+  const remainingQty = order ? Math.max(0, Number(order.targetQty) - shippedQty) : 0;
+  return { completedQty, assignedQty, progress, shippedQty, deliveryProgress, remainingQty };
 }
 
-function getOrderStatus(orderId, orders, batches) {
+function getOrderStatus(orderId, orders, batches, packaging) {
   const order = orders.find(o => o.id === orderId);
   if (!order) return { status: "progress", label: "进行中", days: 0 };
-  const { progress } = getOrderProgress(orderId, orders, batches);
+  const { deliveryProgress } = getOrderProgress(orderId, orders, batches, packaging);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dueDate = new Date(order.dueDate);
   dueDate.setHours(0, 0, 0, 0);
   const diffTime = dueDate - today;
   const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  if (progress >= 100) {
-    return { status: "completed", label: "已完成", days };
+  if (deliveryProgress >= 100) {
+    return { status: "completed", label: "已交付", days };
   }
   if (days < 0) {
     return { status: "overdue", label: `已逾期 ${Math.abs(days)} 天`, days };
   }
-  if (days <= 3 && progress < 80) {
+  if (days <= 3 && deliveryProgress < 80) {
     return { status: "warning", label: `剩余 ${days} 天`, days };
   }
   return { status: "progress", label: `剩余 ${days} 天`, days };

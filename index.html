@@ -465,6 +465,18 @@
           <div class="progress-bar" style="margin-top: 10px;">
             <div class="progress-fill" id="orderProgressFill" style="width: 0%;"></div>
           </div>
+          <div class="meta" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 12px;">
+            <span>生产进度（验收完成）</span>
+          </div>
+          <div class="stage-indicator" id="orderDeliveryIndicator" style="margin-top: 14px;">
+            <span id="orderDeliveryText"></span>
+          </div>
+          <div class="progress-bar delivery-progress" style="margin-top: 10px;">
+            <div class="progress-fill delivery" id="orderDeliveryFill" style="width: 0%;"></div>
+          </div>
+          <div class="meta" style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 12px;">
+            <span>交付进度（实际出货）</span>
+          </div>
         </div>
 
         <div class="order-detail-section">
@@ -475,6 +487,11 @@
         <div class="order-detail-section">
           <h3>可分配批次（相同钩型）</h3>
           <div id="orderAvailableBatches" class="batch-assign-list"></div>
+        </div>
+
+        <div class="order-detail-section">
+          <h3>包装出货记录</h3>
+          <div id="orderPackagingRecords" class="packaging-record-list"></div>
         </div>
 
         <div class="order-detail-section">
@@ -789,11 +806,11 @@
     }
 
     function getOrderProgress(orderId) {
-      return _getOrderProgress(orderId, orders, batches);
+      return _getOrderProgress(orderId, orders, batches, PackagingStorage.packaging);
     }
 
     function getOrderStatus(orderId) {
-      return _getOrderStatus(orderId, orders, batches);
+      return _getOrderStatus(orderId, orders, batches, PackagingStorage.packaging);
     }
 
     function getWireStatus(wire) {
@@ -949,22 +966,27 @@
       }
       orderList.innerHTML = orders.map(order => {
         const { status, label } = getOrderStatus(order.id);
-        const { completedQty, assignedQty, progress } = getOrderProgress(order.id);
+        const { completedQty, assignedQty, progress, shippedQty, deliveryProgress, remainingQty } = getOrderProgress(order.id);
         const assignedBatches = getOrderBatches(order.id);
+        const packagingRecords = PackagingStorage.getByOrderId(order.id);
         const progressClass = status === "overdue" ? "overdue" : (status === "warning" ? "warning" : "");
         return `<div class="order-card ${status}">
           <div onclick="openOrderDetail('${order.id}')">
             <div class="order-head">
               <div>
                 <strong>${order.customer} · ${order.hook}</strong>
-                <div class="meta">目标 ${order.targetQty} 枚 · 已分配 ${assignedQty} 枚 · 已完成 ${completedQty} 枚</div>
+                <div class="meta">目标 ${order.targetQty} 枚 · 已分配 ${assignedQty} 枚 · 已验收 ${completedQty} 枚 · <strong style="color: var(--green);">已出货 ${shippedQty} 枚</strong></div>
               </div>
               <span class="order-status ${status}">${label}</span>
             </div>
-            <div class="progress-bar">
+            <div class="progress-bar" title="生产进度（验收完成）">
               <div class="progress-fill ${progressClass}" style="width: ${progress.toFixed(1)}%;"></div>
             </div>
-            <div class="meta">交付日期：${order.dueDate} · 完成进度：${progress.toFixed(1)}%</div>
+            <div class="meta">生产进度：${progress.toFixed(1)}% · 交付进度：${deliveryProgress.toFixed(1)}% · 交付日期：${order.dueDate}</div>
+            <div class="progress-bar delivery-progress" title="交付进度（实际出货）">
+              <div class="progress-fill delivery" style="width: ${deliveryProgress.toFixed(1)}%;"></div>
+            </div>
+            ${packagingRecords.length > 0 ? `<div class="meta">包装记录：${packagingRecords.length} 次 · 累计 ${packagingRecords.reduce((s,p) => s + Number(p.boxCount||0), 0)} 盒 · 剩余待交付 ${remainingQty} 枚</div>` : `<div class="meta">暂无包装出货记录 · 剩余待交付 ${remainingQty} 枚</div>`}
             <div class="batch-tags">
               <span class="batch-tag">${assignedBatches.length} 个批次</span>
               ${assignedBatches.slice(0, 3).map(b => `<span class="batch-tag stage">${b.stage} · ${b.qty}枚</span>`).join("")}
@@ -1869,8 +1891,12 @@
     const orderProgressText = document.querySelector("#orderProgressText");
     const orderProgressFill = document.querySelector("#orderProgressFill");
     const orderProgressIndicator = document.querySelector("#orderProgressIndicator");
+    const orderDeliveryText = document.querySelector("#orderDeliveryText");
+    const orderDeliveryFill = document.querySelector("#orderDeliveryFill");
+    const orderDeliveryIndicator = document.querySelector("#orderDeliveryIndicator");
     const orderAssignedBatches = document.querySelector("#orderAssignedBatches");
     const orderAvailableBatches = document.querySelector("#orderAvailableBatches");
+    const orderPackagingRecords = document.querySelector("#orderPackagingRecords");
     const orderDetailNote = document.querySelector("#orderDetailNote");
     const orderDetailNoteInput = document.querySelector("#orderDetailNoteInput");
     const orderDetailHistory = document.querySelector("#orderDetailHistory");
@@ -1894,9 +1920,11 @@
       if (!order) return;
       currentOrderId = orderId;
       const { status, label } = getOrderStatus(orderId);
-      const { completedQty, assignedQty, progress } = getOrderProgress(orderId);
+      const { completedQty, assignedQty, progress, shippedQty, deliveryProgress, remainingQty } = getOrderProgress(orderId);
       const orderBatches = getOrderBatches(orderId);
       const availableBatches = batches.filter(b => b.hook === order.hook && b.orderId !== orderId);
+      const pkgRecords = PackagingStorage.getByOrderId(orderId);
+      const totalBoxes = pkgRecords.reduce((s, p) => s + Number(p.boxCount || 0), 0);
 
       orderDrawerTitle.textContent = `${order.customer} · 订单详情`;
       orderDetailCustomer.textContent = order.customer;
@@ -1907,10 +1935,37 @@
       const progressClass = status === "overdue" ? "overdue" : (status === "warning" ? "warning" : "");
       orderProgressFill.className = `progress-fill ${progressClass}`;
       orderProgressFill.style.width = `${progress.toFixed(1)}%`;
-      orderProgressText.textContent = `已完成 ${completedQty} / ${order.targetQty} 枚（${progress.toFixed(1)}%）· 已分配 ${assignedQty} 枚`;
+      orderProgressText.textContent = `已验收 ${completedQty} / ${order.targetQty} 枚（${progress.toFixed(1)}%）· 已分配 ${assignedQty} 枚`;
       orderProgressIndicator.style.background = status === "overdue" ? "#f6e2e0" : (status === "warning" ? "#fff3d6" : "#eef3ea");
       orderProgressIndicator.style.borderColor = status === "overdue" ? "#e0b6b1" : (status === "warning" ? "#e4c88a" : "#c9d8be");
       orderProgressIndicator.style.color = status === "overdue" ? "#7d2b25" : (status === "warning" ? "#8a631f" : "#3b5a32");
+
+      orderDeliveryFill.className = `progress-fill delivery`;
+      orderDeliveryFill.style.width = `${deliveryProgress.toFixed(1)}%`;
+      orderDeliveryText.textContent = `已出货 ${shippedQty} / ${order.targetQty} 枚（${deliveryProgress.toFixed(1)}%）· 剩余待交付 ${remainingQty} 枚 · 累计 ${totalBoxes} 盒`;
+      orderDeliveryIndicator.style.background = deliveryProgress >= 100 ? "#eef3ea" : "#eaf0fb";
+      orderDeliveryIndicator.style.borderColor = deliveryProgress >= 100 ? "#c9d8be" : "#b5c8e8";
+      orderDeliveryIndicator.style.color = deliveryProgress >= 100 ? "#3b5a32" : "#2b4a7d";
+
+      orderPackagingRecords.innerHTML = pkgRecords.length === 0
+        ? `<div class="empty">暂无包装出货记录</div>`
+        : pkgRecords.map(p => `
+          <div class="packaging-card completed" style="margin-bottom: 10px;">
+            <div class="packaging-head">
+              <strong>${p.batchHook}</strong>
+              <span class="packaging-qty-badge">${p.shippedQty} 枚</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
+              ${p.boxCount ? `<span class="packaging-tag box">${p.boxCount} 盒 × ${p.perBoxQty} 枚</span>` : ""}
+              ${p.labelNo ? `<span class="packaging-tag label-no">${p.labelNo}</span>` : ""}
+              ${p.orderCustomer ? `<span class="packaging-tag order">${p.orderCustomer}</span>` : ""}
+            </div>
+            <div class="meta" style="margin-top: 6px;">
+              操作者：${p.operator} · 时间：${new Date(p.createdAt).toLocaleString()}
+            </div>
+            ${p.note ? `<div class="meta">备注：${p.note}</div>` : ""}
+          </div>
+        `).join("");
 
       orderDetailNote.textContent = order.note || "无备注";
       if (!order.note) orderDetailNote.classList.add("note-empty");
@@ -2837,7 +2892,7 @@
     render();
 
     function openScheduling(orderId) {
-      Scheduling.updateData({ batches, orders, wireStock, wireFlow, templates });
+      Scheduling.updateData({ batches, orders, wireStock, wireFlow, templates, packaging: PackagingStorage.packaging });
       Scheduling.openModal(orderId);
     }
 
@@ -2861,7 +2916,7 @@
     }
 
     Scheduling.init(
-      { batches, orders, wireStock, wireFlow, templates },
+      { batches, orders, wireStock, wireFlow, templates, packaging: PackagingStorage.packaging },
       {
         onBatchesGenerated: (result) => {
           batches = result.batches;

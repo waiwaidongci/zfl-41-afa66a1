@@ -39,13 +39,13 @@ const Scheduling = {
     const modal = document.getElementById("schedulingModal");
     if (!modal) return;
 
-    const { orders, templates, wireStock, batches } = this.state.data;
+    const { orders, templates, wireStock, batches, packaging } = this.state.data;
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
     const template = templates.find(t => t.hookName === order.hook);
     const wire = template ? wireStock.find(w => w.spec === template.wire) : null;
-    const { completedQty, assignedQty, progress } = getOrderProgress(orderId, orders, batches);
+    const { completedQty, assignedQty, progress, shippedQty, deliveryProgress } = getOrderProgress(orderId, orders, batches, packaging);
     const remainingQty = Math.max(0, order.targetQty - assignedQty);
 
     const defaultBatchSize = template ? Math.min(150, remainingQty) : Math.min(100, remainingQty);
@@ -134,13 +134,13 @@ const Scheduling = {
   },
 
   recalculateBatches() {
-    const { orders, templates, wireStock, batches } = this.state.data;
+    const { orders, templates, wireStock, batches, packaging } = this.state.data;
     const order = orders.find(o => o.id === this.state.currentOrderId);
     if (!order) return;
 
     const template = templates.find(t => t.hookName === order.hook);
     const wire = template ? wireStock.find(w => w.spec === template.wire) : null;
-    const { assignedQty } = getOrderProgress(this.state.currentOrderId, orders, batches);
+    const { assignedQty } = getOrderProgress(this.state.currentOrderId, orders, batches, packaging);
     const remainingQty = Math.max(0, order.targetQty - assignedQty);
     const batchSize = Math.max(1, Number(document.getElementById("batchSizeInput").value) || 100);
 
@@ -150,12 +150,12 @@ const Scheduling = {
   },
 
   addManualBatch() {
-    const { orders, templates, batches } = this.state.data;
+    const { orders, templates, batches, packaging } = this.state.data;
     const order = orders.find(o => o.id === this.state.currentOrderId);
     if (!order) return;
 
     const template = templates.find(t => t.hookName === order.hook);
-    const { assignedQty } = getOrderProgress(this.state.currentOrderId, orders, batches);
+    const { assignedQty } = getOrderProgress(this.state.currentOrderId, orders, batches, packaging);
     const remainingQty = Math.max(0, order.targetQty - assignedQty);
     const currentTotal = this.state.suggestedBatches.reduce((sum, b) => sum + b.qty, 0);
     const defaultQty = Math.max(1, Math.min(100, remainingQty - currentTotal));
@@ -219,7 +219,7 @@ const Scheduling = {
   },
 
   validateAndRenderWarnings(order, template, wire, remainingQty) {
-    const { orders, wireStock, batches } = this.state.data;
+    const { orders, wireStock, batches, packaging } = this.state.data;
 
     if (!order) order = orders.find(o => o.id === this.state.currentOrderId);
     if (!order) return;
@@ -227,7 +227,7 @@ const Scheduling = {
     if (!template) template = this.state.data.templates.find(t => t.hookName === order.hook);
     if (!wire && template) wire = wireStock.find(w => w.spec === template.wire);
     if (remainingQty === undefined) {
-      const { assignedQty } = getOrderProgress(this.state.currentOrderId, orders, batches);
+      const { assignedQty } = getOrderProgress(this.state.currentOrderId, orders, batches, packaging);
       remainingQty = Math.max(0, order.targetQty - assignedQty);
     }
 
@@ -456,7 +456,7 @@ const Scheduling = {
   },
 
   async generateAllBatches() {
-    const { orders, batches, wireStock, wireFlow, templates } = this.state.data;
+    const { orders, batches, wireStock, wireFlow, templates, packaging } = this.state.data;
     const order = orders.find(o => o.id === this.state.currentOrderId);
 
     if (!order) {
@@ -484,7 +484,7 @@ const Scheduling = {
     const existingSameOrderBatches = batches.filter(b => b.orderId === order.id);
     const existingQty = existingSameOrderBatches.reduce((sum, b) => sum + b.qty, 0);
     const totalSuggestedQty = this.state.suggestedBatches.reduce((sum, b) => sum + b.qty, 0);
-    const { assignedQty } = getOrderProgress(this.state.currentOrderId, orders, batches);
+    const { assignedQty } = getOrderProgress(this.state.currentOrderId, orders, batches, packaging);
     if (existingQty + totalSuggestedQty > order.targetQty) {
       warnings.push(`可能重复排产：已有 ${existingQty} 枚，新增 ${totalSuggestedQty} 枚，合计 ${existingQty + totalSuggestedQty} 枚，超过订单目标 ${order.targetQty} 枚`);
     }

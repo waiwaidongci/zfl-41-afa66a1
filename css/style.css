@@ -543,6 +543,19 @@ button.danger { background: var(--red); }
 .progress-fill.overdue {
   background: var(--red);
 }
+.progress-bar.delivery-progress {
+  height: 6px;
+  margin-top: 4px;
+  background: #e5e1d8;
+}
+.progress-fill.delivery {
+  background: linear-gradient(90deg, #4a7c3c, #6a9c5a);
+}
+.order-card .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
 .batch-tags {
   display: flex;
   gap: 6px;
