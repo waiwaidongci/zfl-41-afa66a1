@@ -23,6 +23,7 @@
       <button class="tab-btn active" data-tab="batches">批次看板</button>
       <button class="tab-btn" data-tab="orders">订单排产</button>
       <button class="tab-btn" data-tab="wire">钢丝库存台账</button>
+      <button class="tab-btn" data-tab="purchase">供应商与采购补货</button>
       <button class="tab-btn" data-tab="templates">工艺模板库</button>
       <button class="tab-btn" data-tab="packaging">包装出货</button>
     </div>
@@ -202,6 +203,97 @@
         </div>
       </section>
     </div>
+
+    <div id="purchasePanel" class="tab-panel" hidden>
+      <section id="purchaseStats" class="stats purchase-stats"></section>
+
+      <div class="purchase-sub-tabs">
+        <button class="purchase-sub-tab active" data-subtab="replenishment">补货提醒</button>
+        <button class="purchase-sub-tab" data-subtab="suppliers">供应商管理</button>
+        <button class="purchase-sub-tab" data-subtab="purchaseOrders">采购单管理</button>
+        <button class="purchase-sub-tab" data-subtab="purchaseFlow">采购流水</button>
+      </div>
+
+      <div id="replenishmentPanel" class="purchase-sub-panel">
+        <section class="wire-layout">
+          <div>
+            <div class="wire-section-title">
+              <h2 class="panel-title">智能补货建议</h2>
+            </div>
+            <div id="replenishmentList" class="replenish-list"></div>
+          </div>
+          <div>
+            <div class="wire-section-title">
+              <h2 class="panel-title">库存概览</h2>
+            </div>
+            <div id="replenishSummaryList" class="wire-list"></div>
+          </div>
+        </section>
+      </div>
+
+      <div id="suppliersPanel" class="purchase-sub-panel" hidden>
+        <section class="wire-layout">
+          <form id="supplierForm" class="wire-form">
+            <h2 id="supplierFormTitle">新增供应商</h2>
+            <div class="wire-form-grid">
+              <label class="full">供应商名称<input name="name" required placeholder="例如：鑫源钢丝厂"></label>
+              <label>联系人<input name="contact" placeholder="例如：李经理"></label>
+              <label>联系电话<input name="phone" placeholder="例如：13800138001"></label>
+              <label class="full">地址<input name="address" placeholder="公司地址"></label>
+              <label class="full">备注<textarea name="note" placeholder="主营产品、合作情况等"></textarea></label>
+            </div>
+            <button class="good" type="submit" id="supplierFormSubmit">添加供应商</button>
+            <button class="secondary" type="button" id="supplierFormCancel" hidden>取消编辑</button>
+          </form>
+          <div>
+            <div class="wire-section-title">
+              <h2 class="panel-title">供应商列表</h2>
+            </div>
+            <div id="supplierList" class="supplier-list"></div>
+          </div>
+        </section>
+      </div>
+
+      <div id="purchaseOrdersPanel" class="purchase-sub-panel" hidden>
+        <section class="wire-layout">
+          <form id="purchaseOrderForm" class="wire-form">
+            <h2 id="poFormTitle">新建采购单</h2>
+            <div class="wire-form-grid">
+              <label class="full">选择供应商
+                <select name="supplierId" id="poSupplierSelect">
+                  <option value="">请选择供应商</option>
+                </select>
+              </label>
+              <label class="full">或手动输入供应商名称<input name="supplierName" id="poSupplierName" placeholder="供应商名称"></label>
+              <label class="full">钢丝规格<input name="wireSpec" id="poWireSpec" required placeholder="例如：0.8mm 蓝火钢丝"></label>
+              <label>采购数量<input name="qty" id="poQty" type="number" min="1" required value="1000"></label>
+              <label>计量单位<input name="unit" id="poUnit" required value="米"></label>
+              <label>单价（元）<input name="unitPrice" id="poUnitPrice" type="number" min="0" step="0.01" value="0.80"></label>
+              <label class="full">总金额（元）<input name="totalAmount" id="poTotalAmount" type="number" readonly></label>
+              <label class="full">预计到货日期<input name="expectedDate" id="poExpectedDate" type="date"></label>
+              <label class="full">备注<textarea name="note" id="poNote" placeholder="采购说明、特殊要求等"></textarea></label>
+            </div>
+            <button class="good" type="submit" id="poFormSubmit">创建采购单</button>
+            <button class="secondary" type="button" id="poFormCancel" hidden>取消编辑</button>
+          </form>
+          <div>
+            <div class="wire-section-title">
+              <h2 class="panel-title">采购单列表</h2>
+            </div>
+            <div id="purchaseOrderList" class="po-list"></div>
+          </div>
+        </section>
+      </div>
+
+      <div id="purchaseFlowPanel" class="purchase-sub-panel" hidden>
+        <section>
+          <div class="wire-section-title">
+            <h2 class="panel-title">采购流水记录</h2>
+          </div>
+          <div id="purchaseFlowList" class="wire-flow-list"></div>
+        </section>
+      </div>
+    </div>
   </main>
 
   <div id="wireAdjustModal" class="modal wire-adjust-modal" hidden>
@@ -237,6 +329,42 @@
       <div class="modal-foot">
         <button id="cancelWireAdjust" class="secondary">取消</button>
         <button id="saveWireAdjust" class="good">确认调整</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="receiveModal" class="modal wire-adjust-modal" hidden>
+    <div class="modal-mask"></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="panel-title">到货入库</h2>
+        <button id="closeReceiveModal" class="secondary">关闭</button>
+      </div>
+      <div class="modal-body">
+        <form id="receiveForm" class="wire-adjust-form">
+          <label>采购单号
+            <input id="receiveOrderNo" readonly>
+          </label>
+          <label>钢丝规格
+            <input id="receiveWireSpec" readonly>
+          </label>
+          <label>采购总数
+            <input id="receiveTotalQty" readonly>
+          </label>
+          <label>已到货数量
+            <input id="receiveReceivedQty" readonly>
+          </label>
+          <label>剩余未到货
+            <input id="receiveRemainingQty" readonly>
+          </label>
+          <label>本次入库数量
+            <input id="receiveQty" type="number" min="1" required>
+          </label>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button id="cancelReceive" class="secondary">取消</button>
+        <button id="saveReceive" class="good">确认入库</button>
       </div>
     </div>
   </div>
@@ -580,6 +708,7 @@
   <script src="js/packaging-storage.js"></script>
   <script src="js/packaging-logic.js"></script>
   <script src="js/scheduling.js"></script>
+  <script src="js/purchase.js"></script>
   <script>
   (function() {
     const stages = Stages;
@@ -596,6 +725,9 @@
     let templates = initialData.templates;
     let packaging = initialData.packaging;
     let packagingFlow = initialData.packagingFlow;
+    let suppliers = initialData.suppliers;
+    let purchaseOrders = initialData.purchaseOrders;
+    let purchaseFlow = initialData.purchaseFlow;
     batches.forEach(b => { if (b.orderId === undefined) b.orderId = null; });
     batches.forEach(b => { if (b.templateId === undefined) b.templateId = null; });
     let currentOrderId = null;
@@ -634,6 +766,7 @@
     const templateStatsEl = document.querySelector("#templateStats");
     const templateListEl = document.querySelector("#templateList");
     const templatesPanel = document.querySelector("#templatesPanel");
+    const purchasePanel = document.querySelector("#purchasePanel");
     const wireAdjustModal = document.querySelector("#wireAdjustModal");
     const wireAdjustTitle = document.querySelector("#wireAdjustTitle");
     const wireAdjustSpec = document.querySelector("#wireAdjustSpec");
@@ -831,6 +964,7 @@
       wirePanel.hidden = tab !== "wire";
       templatesPanel.hidden = tab !== "templates";
       packagingPanel.hidden = tab !== "packaging";
+      purchasePanel.hidden = tab !== "purchase";
       if (tab === "orders") {
         renderOrders();
       } else if (tab === "wire") {
@@ -839,6 +973,19 @@
         renderTemplates();
       } else if (tab === "packaging") {
         renderPackaging();
+      } else if (tab === "purchase") {
+        PurchaseModule.updateData({
+          suppliers,
+          purchaseOrders,
+          purchaseFlow,
+          wireStock,
+          wireFlow,
+          orders,
+          batches,
+          templates,
+          packaging: PackagingStorage.packaging
+        });
+        PurchaseModule.renderAll();
       } else {
         render();
       }
@@ -1525,8 +1672,11 @@
         templates: templates,
         packaging: PackagingStorage.packaging,
         packagingFlow: PackagingStorage.packagingFlow,
+        suppliers: suppliers,
+        purchaseOrders: purchaseOrders,
+        purchaseFlow: purchaseFlow,
         exportTime: new Date().toISOString(),
-        version: "6.0"
+        version: "7.0"
       };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
@@ -2250,7 +2400,7 @@
         const text = await file.text();
         const data = JSON.parse(text);
         let importBatches, importOrders, results, previewList, type;
-        if (data && typeof data === "object" && !Array.isArray(data) && (data.batches || data.orders || data.wireStock || data.wireFlow || data.packaging || data.packagingFlow)) {
+        if (data && typeof data === "object" && !Array.isArray(data) && (data.batches || data.orders || data.wireStock || data.wireFlow || data.packaging || data.packagingFlow || data.suppliers || data.purchaseOrders || data.purchaseFlow)) {
           const hasBatches = data.batches && Array.isArray(data.batches);
           const hasOrders = data.orders && Array.isArray(data.orders);
           const hasWireStock = data.wireStock && Array.isArray(data.wireStock);
@@ -2259,7 +2409,10 @@
           const hasTemplates = data.templates && Array.isArray(data.templates);
           const hasPackaging = data.packaging && Array.isArray(data.packaging);
           const hasPackagingFlow = data.packagingFlow && Array.isArray(data.packagingFlow);
-          if (hasBatches || hasOrders || hasWireStock || hasWireFlow || hasPackaging || hasPackagingFlow) {
+          const hasSuppliers = data.suppliers && Array.isArray(data.suppliers);
+          const hasPurchaseOrders = data.purchaseOrders && Array.isArray(data.purchaseOrders);
+          const hasPurchaseFlow = data.purchaseFlow && Array.isArray(data.purchaseFlow);
+          if (hasBatches || hasOrders || hasWireStock || hasWireFlow || hasPackaging || hasPackagingFlow || hasSuppliers || hasPurchaseOrders || hasPurchaseFlow) {
             const batchResults = hasBatches ? data.batches.map((item, i) => validateBatch(item, i)) : [];
             const orderResults = hasOrders ? data.orders.map((item, i) => validateOrder(item, i)) : [];
             const batchValid = batchResults.filter(r => r.valid).length;
@@ -2273,6 +2426,9 @@
             if (hasTemplates) parts.push(`工艺模板 ${data.templates.length} 条`);
             if (hasPackaging) parts.push(`包装记录 ${data.packaging.length} 条`);
             if (hasPackagingFlow) parts.push(`包装流水 ${data.packagingFlow.length} 条`);
+            if (hasSuppliers) parts.push(`供应商 ${data.suppliers.length} 条`);
+            if (hasPurchaseOrders) parts.push(`采购单 ${data.purchaseOrders.length} 条`);
+            if (hasPurchaseFlow) parts.push(`采购流水 ${data.purchaseFlow.length} 条`);
             importSummary.textContent = `检测到数据：${parts.join("，")}。将合并导入所有数据。`;
             const hasErrors = batchResults.some(r => !r.valid) || orderResults.some(r => !r.valid);
             if (hasErrors) {
@@ -2286,7 +2442,7 @@
               importError.hidden = true;
               confirmImportBtn.disabled = false;
             }
-            pendingImport = { batches: data.batches || [], orders: data.orders || [], wireStock: data.wireStock || [], wireFlow: data.wireFlow || [], inspections: data.inspections || [], templates: data.templates || [], packaging: data.packaging || [], packagingFlow: data.packagingFlow || [] };
+            pendingImport = { batches: data.batches || [], orders: data.orders || [], wireStock: data.wireStock || [], wireFlow: data.wireFlow || [], inspections: data.inspections || [], templates: data.templates || [], packaging: data.packaging || [], packagingFlow: data.packagingFlow || [], suppliers: data.suppliers || [], purchaseOrders: data.purchaseOrders || [], purchaseFlow: data.purchaseFlow || [] };
             pendingImportType = "full";
             previewBody.innerHTML = "";
             importStep1.hidden = true;
@@ -2469,6 +2625,56 @@
           });
           PackagingStorage.packagingFlow.sort((a, b) => new Date(b.time) - new Date(a.time));
         }
+        if (pendingImport.suppliers && Array.isArray(pendingImport.suppliers)) {
+          pendingImport.suppliers.forEach(item => {
+            const existing = suppliers.find(s => s.name === String(item.name || "").trim());
+            if (!existing) {
+              suppliers.push({
+                id: item.id || crypto.randomUUID(),
+                name: String(item.name || "").trim(),
+                contact: item.contact ? String(item.contact) : "",
+                phone: item.phone ? String(item.phone) : "",
+                address: item.address ? String(item.address) : "",
+                note: item.note ? String(item.note) : "",
+                createdAt: item.createdAt || new Date().toISOString()
+              });
+            }
+          });
+        }
+        if (pendingImport.purchaseOrders && Array.isArray(pendingImport.purchaseOrders)) {
+          pendingImport.purchaseOrders.forEach(item => {
+            purchaseOrders.push({
+              id: item.id || crypto.randomUUID(),
+              orderNo: item.orderNo || "",
+              supplierId: item.supplierId || null,
+              supplierName: item.supplierName ? String(item.supplierName) : "",
+              wireSpec: String(item.wireSpec || ""),
+              qty: Number(item.qty || 0),
+              unit: String(item.unit || "米"),
+              unitPrice: Number(item.unitPrice || 0),
+              totalAmount: Number(item.totalAmount || 0),
+              expectedDate: item.expectedDate || "",
+              status: item.status || "pending",
+              note: item.note ? String(item.note) : "",
+              receivedQty: Number(item.receivedQty || 0),
+              createdAt: item.createdAt || new Date().toISOString(),
+              receivedAt: item.receivedAt || null
+            });
+          });
+          purchaseOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+        if (pendingImport.purchaseFlow && Array.isArray(pendingImport.purchaseFlow)) {
+          pendingImport.purchaseFlow.forEach(item => {
+            purchaseFlow.push({
+              id: item.id || crypto.randomUUID(),
+              purchaseOrderId: item.purchaseOrderId || null,
+              type: item.type || "create",
+              remark: item.remark ? String(item.remark) : "",
+              time: item.time || new Date().toISOString()
+            });
+          });
+          purchaseFlow.sort((a, b) => new Date(b.time) - new Date(a.time));
+        }
         save();
         saveOrders();
         saveWire();
@@ -2476,12 +2682,27 @@
         saveInspections();
         saveTemplates();
         savePackagingAll();
+        Storage.saveSuppliers(suppliers);
+        Storage.savePurchaseOrders(purchaseOrders);
+        Storage.savePurchaseFlow(purchaseFlow);
         syncPackagingLogicData();
+        PurchaseModule.updateData({
+          suppliers,
+          purchaseOrders,
+          purchaseFlow,
+          wireStock,
+          wireFlow,
+          orders,
+          batches,
+          templates,
+          packaging: PackagingStorage.packaging
+        });
         if (currentTab === "batches") render();
         else if (currentTab === "orders") renderOrders();
         else if (currentTab === "wire") renderWire();
         else if (currentTab === "templates") renderTemplates();
         else if (currentTab === "packaging") renderPackaging();
+        else if (currentTab === "purchase") PurchaseModule.renderAll();
         refreshBatchWireOptions();
         refreshTemplateSelect();
       } else if (pendingImportType === "orders") {
@@ -2906,13 +3127,28 @@
       templates = data.templates;
       packaging = data.packaging;
       packagingFlow = data.packagingFlow;
+      suppliers = data.suppliers;
+      purchaseOrders = data.purchaseOrders;
+      purchaseFlow = data.purchaseFlow;
       PackagingStorage.init({ packaging, packagingFlow });
       PackagingLogic.init({ batches, orders, inspections });
+      PurchaseModule.updateData({
+        suppliers,
+        purchaseOrders,
+        purchaseFlow,
+        wireStock,
+        wireFlow,
+        orders,
+        batches,
+        templates,
+        packaging: PackagingStorage.packaging
+      });
       render();
       renderOrders();
       renderWire();
       renderTemplates();
       if (currentTab === "packaging") renderPackaging();
+      if (currentTab === "purchase") PurchaseModule.renderAll();
     }
 
     Scheduling.init(
@@ -2928,6 +3164,34 @@
           const pkgFlow = PackagingStorage.packagingFlow;
           Storage.saveAll({ batches, orders, wireStock, wireFlow, inspections, templates, packaging: pkgs, packagingFlow: pkgFlow });
           refreshAll();
+        }
+      }
+    );
+
+    PurchaseModule.init(
+      {
+        suppliers,
+        purchaseOrders,
+        purchaseFlow,
+        wireStock,
+        wireFlow,
+        orders,
+        batches,
+        templates,
+        packaging: PackagingStorage.packaging
+      },
+      {
+        onDataChange: (data) => {
+          if (data.suppliers !== undefined) suppliers = data.suppliers;
+          if (data.purchaseOrders !== undefined) purchaseOrders = data.purchaseOrders;
+          if (data.purchaseFlow !== undefined) purchaseFlow = data.purchaseFlow;
+          if (data.wireStock !== undefined) wireStock = data.wireStock;
+          if (data.wireFlow !== undefined) wireFlow = data.wireFlow;
+          refreshAll();
+        },
+        onWireStockChanged: () => {
+          renderWire();
+          refreshBatchWireOptions();
         }
       }
     );

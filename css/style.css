@@ -1471,12 +1471,324 @@ button.danger { background: var(--red); }
   text-decoration-style: dotted;
 }
 
+.purchase-stats {
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+}
+
+.purchase-sub-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.purchase-sub-tab {
+  flex: 1;
+  padding: 10px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 14px;
+  min-height: auto;
+}
+
+.purchase-sub-tab:hover {
+  background: #f5f2ec;
+  color: var(--ink);
+}
+
+.purchase-sub-tab.active {
+  background: var(--blue);
+  color: #fff;
+  font-weight: 500;
+}
+
+.replenish-list {
+  display: grid;
+  gap: 12px;
+}
+
+.replenish-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 10px;
+  border-left: 4px solid var(--muted);
+}
+
+.replenish-card.critical {
+  border-left-color: var(--red);
+  background: #fdf6f5;
+}
+
+.replenish-card.urgent {
+  border-left-color: var(--gold);
+  background: #fff8e8;
+}
+
+.replenish-card.warning {
+  border-left-color: var(--gold);
+  background: #fffdf7;
+}
+
+.replenish-card.suggest {
+  border-left-color: var(--blue);
+  background: #f5f9fa;
+}
+
+.replenish-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.replenish-head strong {
+  font-size: 16px;
+}
+
+.replenish-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.replenish-badge.critical {
+  background: var(--red);
+  color: #fff;
+}
+
+.replenish-badge.urgent {
+  background: var(--gold);
+  color: #fff;
+}
+
+.replenish-badge.warning {
+  background: #e8d9b5;
+  color: #7a5c1a;
+}
+
+.replenish-badge.suggest {
+  background: var(--blue);
+  color: #fff;
+}
+
+.replenish-qty {
+  font-size: 22px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.replenish-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  font-size: 13px;
+}
+
+.replenish-details div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.replenish-details span {
+  color: var(--muted);
+}
+
+.supplier-list {
+  display: grid;
+  gap: 12px;
+}
+
+.supplier-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.supplier-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.supplier-head strong {
+  font-size: 16px;
+}
+
+.supplier-contact {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.supplier-meta {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.po-list {
+  display: grid;
+  gap: 12px;
+}
+
+.po-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 10px;
+  border-left: 4px solid var(--muted);
+}
+
+.po-card.pending {
+  border-left-color: var(--gold);
+  background: #fffdf7;
+}
+
+.po-card.partial {
+  border-left-color: var(--blue);
+  background: #f5f9fa;
+}
+
+.po-card.completed {
+  border-left-color: var(--green);
+  background: #f5faf1;
+}
+
+.po-card.cancelled {
+  border-left-color: var(--muted);
+  background: #f8f6f3;
+  opacity: 0.7;
+}
+
+.po-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.po-head strong {
+  font-size: 16px;
+}
+
+.po-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.po-status.pending {
+  background: #fff3d6;
+  color: #8a631f;
+}
+
+.po-status.partial {
+  background: #e4eff2;
+  color: #27667b;
+}
+
+.po-status.completed {
+  background: #d9e8d0;
+  color: #3b5a32;
+}
+
+.po-status.cancelled {
+  background: #e8e4df;
+  color: #68717d;
+}
+
+.po-amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.po-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 16px;
+  font-size: 13px;
+}
+
+.po-details div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.po-details span {
+  color: var(--muted);
+}
+
+.po-note {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 6px 10px;
+  background: #fbfaf7;
+  border-radius: 4px;
+  line-height: 1.5;
+}
+
+.po-done, .po-cancelled {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 0;
+}
+
+.po-done { color: var(--green); }
+.po-cancelled { color: var(--muted); }
+
+.wire-flow-item.supplier_create,
+.wire-flow-item.supplier_update,
+.wire-flow-item.supplier_delete,
+.wire-flow-item.po_create,
+.wire-flow-item.po_update,
+.wire-flow-item.po_cancel,
+.wire-flow-item.po_receive {
+  border-left-color: var(--blue);
+  background: #f5f9fa;
+}
+
+.wire-flow-item.supplier_delete,
+.wire-flow-item.po_cancel {
+  border-left-color: var(--red);
+  background: #fdf6f5;
+}
+
+.wire-flow-item.po_receive {
+  border-left-color: var(--green);
+  background: #f5faf1;
+}
+
 @media (max-width: 920px) {
   header { display: block; padding: 18px; }
   main { padding: 16px; }
   .toolbar, .layout, .wire-layout, .packaging-layout { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, 1fr); }
-  .order-stats, .wire-stats, .packaging-stats { grid-template-columns: repeat(2, 1fr); }
+  .order-stats, .wire-stats, .packaging-stats, .purchase-stats { grid-template-columns: repeat(2, 1fr); }
   .form, .wire-form, .packaging-form { position: static; }
   .drawer-panel { width: 100%; max-width: 100%; }
   .detail-grid { grid-template-columns: 1fr; }
@@ -1489,4 +1801,8 @@ button.danger { background: var(--red); }
   .drawer-head, .drawer-body, .drawer-foot { padding-left: 16px; padding-right: 16px; }
   .config-grid { grid-template-columns: 1fr; }
   .suggested-batch-item .batch-meta { grid-template-columns: 1fr; }
+  .purchase-sub-tabs { flex-wrap: wrap; }
+  .purchase-sub-tab { flex: 1 1 40%; font-size: 13px; padding: 8px 10px; }
+  .replenish-details { grid-template-columns: 1fr; }
+  .po-details { grid-template-columns: 1fr; }
 }
