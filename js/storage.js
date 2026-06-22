@@ -4,7 +4,9 @@ const StorageKeys = {
   WIRE_STOCK: "zfl41WireStock",
   WIRE_FLOW: "zfl41WireFlow",
   INSPECTIONS: "zfl41Inspections",
-  TEMPLATES: "zfl41Templates"
+  TEMPLATES: "zfl41Templates",
+  PACKAGING: "zfl41Packaging",
+  PACKAGING_FLOW: "zfl41PackagingFlow"
 };
 
 const Stages = ["剪料", "退火", "弯钩", "淬火", "回火", "打磨", "验收"];
@@ -55,6 +57,8 @@ const SeedData = {
     { id: crypto.randomUUID(), wireId: wireSeed[2].id, spec: wireSeed[2].spec, type: "in", qty: 80, balance: 80, reason: "初始入库", time: new Date().toISOString() }
   ]),
   inspections: () => ([]),
+  packaging: () => ([]),
+  packagingFlow: () => ([]),
   templates: () => ([
     { id: crypto.randomUUID(), hookName: "袖钩 4 号", wire: "0.6mm 软调钢丝", owner: "小孟", defectThreshold: 3, processNote: "退火温度 650°C，弯嘴角度 45°，打磨后需做样钩 10 枚抽检", createdAt: new Date().toISOString() },
     { id: crypto.randomUUID(), hookName: "溪流倒刺 6 号", wire: "0.8mm 蓝火钢丝", owner: "林师傅", defectThreshold: 5, processNote: "退火温度 700°C，弯嘴角度偏小的需单独复查", createdAt: new Date().toISOString() },
@@ -93,7 +97,9 @@ const Storage = {
       wireStock: this.load(StorageKeys.WIRE_STOCK, () => wireStockSeed),
       wireFlow: this.load(StorageKeys.WIRE_FLOW, () => SeedData.wireFlow(wireStockSeed)),
       inspections: this.load(StorageKeys.INSPECTIONS, SeedData.inspections),
-      templates: this.load(StorageKeys.TEMPLATES, SeedData.templates)
+      templates: this.load(StorageKeys.TEMPLATES, SeedData.templates),
+      packaging: this.load(StorageKeys.PACKAGING, SeedData.packaging),
+      packagingFlow: this.load(StorageKeys.PACKAGING_FLOW, SeedData.packagingFlow)
     };
   },
 
@@ -104,6 +110,8 @@ const Storage = {
     this.save(StorageKeys.WIRE_FLOW, data.wireFlow);
     this.save(StorageKeys.INSPECTIONS, data.inspections);
     this.save(StorageKeys.TEMPLATES, data.templates);
+    this.save(StorageKeys.PACKAGING, data.packaging);
+    this.save(StorageKeys.PACKAGING_FLOW, data.packagingFlow);
   },
 
   saveBatches(batches) { this.save(StorageKeys.BATCHES, batches); },
@@ -111,7 +119,9 @@ const Storage = {
   saveWireStock(wireStock) { this.save(StorageKeys.WIRE_STOCK, wireStock); },
   saveWireFlow(wireFlow) { this.save(StorageKeys.WIRE_FLOW, wireFlow); },
   saveInspections(inspections) { this.save(StorageKeys.INSPECTIONS, inspections); },
-  saveTemplates(templates) { this.save(StorageKeys.TEMPLATES, templates); }
+  saveTemplates(templates) { this.save(StorageKeys.TEMPLATES, templates); },
+  savePackaging(packaging) { this.save(StorageKeys.PACKAGING, packaging); },
+  savePackagingFlow(packagingFlow) { this.save(StorageKeys.PACKAGING_FLOW, packagingFlow); }
 };
 
 function estimateWireUsage(batchQty) {

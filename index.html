@@ -24,6 +24,7 @@
       <button class="tab-btn" data-tab="orders">订单排产</button>
       <button class="tab-btn" data-tab="wire">钢丝库存台账</button>
       <button class="tab-btn" data-tab="templates">工艺模板库</button>
+      <button class="tab-btn" data-tab="packaging">包装出货</button>
     </div>
 
     <div id="batchesPanel" class="tab-panel">
@@ -141,6 +142,63 @@
             <h2 class="panel-title">模板列表</h2>
           </div>
           <div id="templateList" class="wire-list"></div>
+        </div>
+      </section>
+    </div>
+
+    <div id="packagingPanel" class="tab-panel" hidden>
+      <section id="packagingStats" class="stats packaging-stats"></section>
+
+      <section class="packaging-layout">
+        <form id="packagingForm" class="packaging-form">
+          <h2>新建包装出货</h2>
+          <div class="packaging-form-grid">
+            <label class="full">选择验收批次
+              <select name="batchId" id="packagingBatchSelect" required></select>
+            </label>
+            <div id="packagingBatchInfo" class="packaging-batch-info"></div>
+            <label class="full">关联订单（可选）
+              <select name="orderId" id="packagingOrderSelect">
+                <option value="">不关联订单</option>
+              </select>
+            </label>
+            <label>出货数量（枚）
+              <input name="shippedQty" id="packagingShippedQty" type="number" min="1" required placeholder="例如：100">
+            </label>
+            <label>每盒数量（枚）
+              <input name="perBoxQty" id="packagingPerBoxQty" type="number" min="0" value="50" placeholder="50">
+            </label>
+            <label>盒数
+              <input name="boxCount" id="packagingBoxCount" type="number" min="0" value="0" placeholder="自动计算">
+            </label>
+            <div class="packaging-hint" id="packagingBoxHint"></div>
+            <label>操作者
+              <input name="operator" id="packagingOperator" required placeholder="例如：老王">
+            </label>
+            <label>贴标编号
+              <div class="row" style="gap: 6px;">
+                <input name="labelNo" id="packagingLabelNo" placeholder="点击右侧自动生成">
+                <button type="button" id="genLabelNoBtn" class="secondary" style="min-height: auto; padding: 8px 12px;">生成</button>
+              </div>
+            </label>
+            <label class="full">备注
+              <textarea name="note" placeholder="包装规格、特殊要求、快递单号等"></textarea>
+            </label>
+          </div>
+          <div id="packagingFormError" class="packaging-form-error" hidden></div>
+          <button class="good" type="submit">确认包装出库</button>
+        </form>
+
+        <div>
+          <div class="packaging-section-title">
+            <h2 class="panel-title">包装出货记录</h2>
+          </div>
+          <div id="packagingList" class="packaging-list"></div>
+
+          <div class="packaging-section-title" style="margin-top: 24px;">
+            <h2 class="panel-title">包装流水记录</h2>
+          </div>
+          <div id="packagingFlowList" class="packaging-flow-list"></div>
         </div>
       </section>
     </div>
@@ -502,6 +560,8 @@
   </div>
 
   <script src="js/storage.js"></script>
+  <script src="js/packaging-storage.js"></script>
+  <script src="js/packaging-logic.js"></script>
   <script src="js/scheduling.js"></script>
   <script>
   (function() {
@@ -517,11 +577,16 @@
     let batches = initialData.batches;
     let orders = initialData.orders;
     let templates = initialData.templates;
+    let packaging = initialData.packaging;
+    let packagingFlow = initialData.packagingFlow;
     batches.forEach(b => { if (b.orderId === undefined) b.orderId = null; });
     batches.forEach(b => { if (b.templateId === undefined) b.templateId = null; });
     let currentOrderId = null;
     let currentTab = "batches";
     let currentWireId = null;
+
+    PackagingStorage.init({ packaging, packagingFlow });
+    PackagingLogic.init({ batches, orders, inspections });
 
     const form = document.querySelector("#batchForm");
     const board = document.querySelector("#board");
@@ -582,6 +647,13 @@
 
     function saveTemplates() {
       Storage.saveTemplates(templates);
+    }
+
+    function savePackagingAll() {
+      packaging = PackagingStorage.packaging;
+      packagingFlow = PackagingStorage.packagingFlow;
+      Storage.savePackaging(packaging);
+      Storage.savePackagingFlow(packagingFlow);
     }
 
     const _getBatchThresholdWarning = window.getBatchThresholdWarning;
@@ -741,12 +813,15 @@
       ordersPanel.hidden = tab !== "orders";
       wirePanel.hidden = tab !== "wire";
       templatesPanel.hidden = tab !== "templates";
+      packagingPanel.hidden = tab !== "packaging";
       if (tab === "orders") {
         renderOrders();
       } else if (tab === "wire") {
         renderWire();
       } else if (tab === "templates") {
         renderTemplates();
+      } else if (tab === "packaging") {
+        renderPackaging();
       } else {
         render();
       }
@@ -1426,8 +1501,10 @@
         wireFlow: wireFlow,
         inspections: inspections,
         templates: templates,
+        packaging: PackagingStorage.packaging,
+        packagingFlow: PackagingStorage.packagingFlow,
         exportTime: new Date().toISOString(),
-        version: "5.0"
+        version: "6.0"
       };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
@@ -2118,14 +2195,16 @@
         const text = await file.text();
         const data = JSON.parse(text);
         let importBatches, importOrders, results, previewList, type;
-        if (data && typeof data === "object" && !Array.isArray(data) && (data.batches || data.orders || data.wireStock || data.wireFlow)) {
+        if (data && typeof data === "object" && !Array.isArray(data) && (data.batches || data.orders || data.wireStock || data.wireFlow || data.packaging || data.packagingFlow)) {
           const hasBatches = data.batches && Array.isArray(data.batches);
           const hasOrders = data.orders && Array.isArray(data.orders);
           const hasWireStock = data.wireStock && Array.isArray(data.wireStock);
           const hasWireFlow = data.wireFlow && Array.isArray(data.wireFlow);
           const hasInspections = data.inspections && Array.isArray(data.inspections);
           const hasTemplates = data.templates && Array.isArray(data.templates);
-          if (hasBatches || hasOrders || hasWireStock || hasWireFlow) {
+          const hasPackaging = data.packaging && Array.isArray(data.packaging);
+          const hasPackagingFlow = data.packagingFlow && Array.isArray(data.packagingFlow);
+          if (hasBatches || hasOrders || hasWireStock || hasWireFlow || hasPackaging || hasPackagingFlow) {
             const batchResults = hasBatches ? data.batches.map((item, i) => validateBatch(item, i)) : [];
             const orderResults = hasOrders ? data.orders.map((item, i) => validateOrder(item, i)) : [];
             const batchValid = batchResults.filter(r => r.valid).length;
@@ -2137,6 +2216,8 @@
             if (hasWireFlow) parts.push(`库存流水 ${data.wireFlow.length} 条`);
             if (hasInspections) parts.push(`抽检记录 ${data.inspections.length} 条`);
             if (hasTemplates) parts.push(`工艺模板 ${data.templates.length} 条`);
+            if (hasPackaging) parts.push(`包装记录 ${data.packaging.length} 条`);
+            if (hasPackagingFlow) parts.push(`包装流水 ${data.packagingFlow.length} 条`);
             importSummary.textContent = `检测到数据：${parts.join("，")}。将合并导入所有数据。`;
             const hasErrors = batchResults.some(r => !r.valid) || orderResults.some(r => !r.valid);
             if (hasErrors) {
@@ -2150,7 +2231,7 @@
               importError.hidden = true;
               confirmImportBtn.disabled = false;
             }
-            pendingImport = { batches: data.batches || [], orders: data.orders || [], wireStock: data.wireStock || [], wireFlow: data.wireFlow || [], inspections: data.inspections || [], templates: data.templates || [] };
+            pendingImport = { batches: data.batches || [], orders: data.orders || [], wireStock: data.wireStock || [], wireFlow: data.wireFlow || [], inspections: data.inspections || [], templates: data.templates || [], packaging: data.packaging || [], packagingFlow: data.packagingFlow || [] };
             pendingImportType = "full";
             previewBody.innerHTML = "";
             importStep1.hidden = true;
@@ -2300,16 +2381,52 @@
             }
           });
         }
+        if (pendingImport.packaging && Array.isArray(pendingImport.packaging)) {
+          pendingImport.packaging.forEach(item => {
+            PackagingStorage.packaging.push({
+              id: item.id || crypto.randomUUID(),
+              batchId: item.batchId || "",
+              batchHook: String(item.batchHook || ""),
+              batchWire: String(item.batchWire || ""),
+              orderId: item.orderId || null,
+              orderCustomer: String(item.orderCustomer || ""),
+              shippedQty: Number(item.shippedQty || 0),
+              boxCount: Number(item.boxCount || 0),
+              perBoxQty: Number(item.perBoxQty || 0),
+              operator: String(item.operator || ""),
+              labelNo: String(item.labelNo || ""),
+              note: item.note ? String(item.note) : "",
+              createdAt: item.createdAt || new Date().toISOString(),
+              history: item.history && Array.isArray(item.history) ? item.history : [`${now} 导入创建包装记录`]
+            });
+          });
+        }
+        if (pendingImport.packagingFlow && Array.isArray(pendingImport.packagingFlow)) {
+          pendingImport.packagingFlow.forEach(item => {
+            PackagingStorage.packagingFlow.push({
+              id: item.id || crypto.randomUUID(),
+              packagingId: item.packagingId || "",
+              type: item.type || "create",
+              qty: Number(item.qty || 0),
+              reason: item.reason ? String(item.reason) : "",
+              time: item.time || new Date().toISOString()
+            });
+          });
+          PackagingStorage.packagingFlow.sort((a, b) => new Date(b.time) - new Date(a.time));
+        }
         save();
         saveOrders();
         saveWire();
         saveWireFlow();
         saveInspections();
         saveTemplates();
+        savePackagingAll();
+        syncPackagingLogicData();
         if (currentTab === "batches") render();
         else if (currentTab === "orders") renderOrders();
         else if (currentTab === "wire") renderWire();
         else if (currentTab === "templates") renderTemplates();
+        else if (currentTab === "packaging") renderPackaging();
         refreshBatchWireOptions();
         refreshTemplateSelect();
       } else if (pendingImportType === "orders") {
@@ -2390,6 +2507,331 @@
     saveWireFlow();
     saveInspections();
     saveTemplates();
+
+    const packagingPanel = document.querySelector("#packagingPanel");
+    const packagingStatsEl = document.querySelector("#packagingStats");
+    const packagingForm = document.querySelector("#packagingForm");
+    const packagingBatchSelect = document.querySelector("#packagingBatchSelect");
+    const packagingOrderSelect = document.querySelector("#packagingOrderSelect");
+    const packagingBatchInfo = document.querySelector("#packagingBatchInfo");
+    const packagingShippedQty = document.querySelector("#packagingShippedQty");
+    const packagingPerBoxQty = document.querySelector("#packagingPerBoxQty");
+    const packagingBoxCount = document.querySelector("#packagingBoxCount");
+    const packagingBoxHint = document.querySelector("#packagingBoxHint");
+    const packagingLabelNo = document.querySelector("#packagingLabelNo");
+    const genLabelNoBtn = document.querySelector("#genLabelNoBtn");
+    const packagingOperator = document.querySelector("#packagingOperator");
+    const packagingFormError = document.querySelector("#packagingFormError");
+    const packagingListEl = document.querySelector("#packagingList");
+    const packagingFlowListEl = document.querySelector("#packagingFlowList");
+
+    function syncPackagingLogicData() {
+      PackagingLogic.updateData({ batches, orders, inspections });
+    }
+
+    function renderPackagingStats() {
+      const stats = PackagingStorage.getTotalStats();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayRecords = PackagingStorage.getAll().filter(p => new Date(p.createdAt) >= today);
+      const todayQty = todayRecords.reduce((s, p) => s + Number(p.shippedQty), 0);
+      const todayBoxes = todayRecords.reduce((s, p) => s + Number(p.boxCount || 0), 0);
+      packagingStatsEl.innerHTML = `
+        <div class="stat"><span>包装记录</span><b>${stats.totalRecords}</b><span class="meta">次操作</span></div>
+        <div class="stat"><span>累计出货</span><b style="color: var(--blue);">${stats.totalQty}</b><span class="meta">枚鱼钩</span></div>
+        <div class="stat"><span>累计包装</span><b>${stats.totalBoxes}</b><span class="meta">盒</span></div>
+        <div class="stat"><span>今日出货</span><b style="color: var(--green);">${todayQty}</b><span class="meta">枚 / ${todayBoxes} 盒</span></div>
+      `;
+    }
+
+    function refreshPackagingBatchSelect() {
+      const current = packagingBatchSelect.value;
+      const available = PackagingLogic.getAvailableBatches();
+      if (available.length === 0) {
+        packagingBatchSelect.innerHTML = `<option value="">暂无可出货的验收批次</option>`;
+        packagingBatchInfo.innerHTML = `<div class="meta">请先将批次推进到「验收」工序，完成质量抽检后再进行包装出货。</div>`;
+        return;
+      }
+      packagingBatchSelect.innerHTML = `<option value="">请选择验收批次</option>` +
+        available.map(b => {
+          const orderText = b.orderCustomer ? `（订单：${b.orderCustomer}）` : "（未分配订单）";
+          return `<option value="${b.id}">${b.hook} · ${b.usableQty} 枚可用 · ${b.owner} ${orderText}</option>`;
+        }).join("");
+      if (available.find(b => b.id === current)) {
+        packagingBatchSelect.value = current;
+        updatePackagingBatchInfo();
+      } else {
+        packagingBatchInfo.innerHTML = "";
+      }
+    }
+
+    function refreshPackagingOrderSelect() {
+      const current = packagingOrderSelect.value;
+      const ordersForPkg = PackagingLogic.getOrdersForPackaging();
+      packagingOrderSelect.innerHTML = `<option value="">不关联订单</option>` +
+        ordersForPkg.map(o => `
+          <option value="${o.id}" ${o.remainingForDelivery <= 0 ? "disabled" : ""}>
+            ${o.customer} · ${o.hook} · 需交付 ${o.remainingForDelivery} 枚（已出 ${o.shippedQty}/${o.targetQty}）
+          </option>
+        `).join("");
+      if (ordersForPkg.find(o => o.id === current)) {
+        packagingOrderSelect.value = current;
+      }
+    }
+
+    function updatePackagingBatchInfo() {
+      const batchId = packagingBatchSelect.value;
+      if (!batchId) {
+        packagingBatchInfo.innerHTML = "";
+        packagingShippedQty.max = "";
+        packagingShippedQty.placeholder = "例如：100";
+        return;
+      }
+      const available = PackagingLogic.getAvailableBatches();
+      const batch = available.find(b => b.id === batchId);
+      if (!batch) {
+        packagingBatchInfo.innerHTML = "";
+        return;
+      }
+      const inspClass = batch.inspectionStatus === "pending" ? "inspection-pending"
+        : (batch.inspectionStatus === "warning" ? "inspection-warning" : "inspection-ok");
+      packagingBatchInfo.innerHTML = `
+        <div>
+          <strong>${batch.hook}</strong> · 钢丝：${batch.wire}
+          <span class="packaging-tag ${inspClass}" style="margin-left: 6px;">${batch.inspectionLabel}</span>
+        </div>
+        <div class="meta">
+          批次总数：${batch.qty} 枚 · 缺陷：${batch.defects} 枚 · 已出货：${batch.shippedQty} 枚 · <strong style="color: var(--green);">可出货：${batch.usableQty} 枚</strong>
+        </div>
+        ${batch.orderCustomer ? `
+          <div class="meta">
+            关联订单：<span class="packaging-order-link" onclick="switchTab('orders'); setTimeout(() => openOrderDetail('${batch.orderId}'), 200);">${batch.orderCustomer}</span>
+            ${batch.orderDueDate ? ` · 交付日期：${batch.orderDueDate}` : ""}
+          </div>
+        ` : `<div class="meta">未分配订单，出货时可手动选择关联订单</div>`}
+      `;
+      packagingShippedQty.max = batch.usableQty;
+      packagingShippedQty.placeholder = `最多 ${batch.usableQty} 枚`;
+      if (batch.orderId && !packagingOrderSelect.value) {
+        packagingOrderSelect.value = batch.orderId;
+      }
+    }
+
+    function updatePackagingBoxCalc() {
+      const qty = Number(packagingShippedQty.value) || 0;
+      const perBox = Number(packagingPerBoxQty.value) || 0;
+      const hintEl = packagingBoxHint;
+      if (qty <= 0) {
+        hintEl.className = "packaging-hint";
+        hintEl.textContent = "请先输入出货数量";
+        packagingBoxCount.value = 0;
+        return;
+      }
+      if (perBox <= 0) {
+        hintEl.className = "packaging-hint";
+        hintEl.textContent = "每盒数量为 0 时不自动计算盒数，可手动填写";
+        return;
+      }
+      const { boxCount, remainder } = PackagingLogic.autoSuggestBoxes(qty, perBox);
+      if (remainder === 0) {
+        packagingBoxCount.value = boxCount;
+        hintEl.className = "packaging-hint";
+        hintEl.textContent = `自动计算：${qty} 枚 ÷ ${perBox} 枚/盒 = ${boxCount} 盒（正好装满）`;
+      } else {
+        packagingBoxCount.value = boxCount + 1;
+        hintEl.className = "packaging-hint warn";
+        hintEl.textContent = `自动计算：${qty} 枚 ÷ ${perBox} 枚/盒 = ${boxCount} 盒满 + 余数 ${remainder} 枚，共 ${boxCount + 1} 盒（最后一盒不满）`;
+      }
+      const filledBoxes = Number(packagingBoxCount.value) || 0;
+      if (filledBoxes > 0 && perBox > 0) {
+        const calcQty = filledBoxes * perBox;
+        if (calcQty !== qty) {
+          const boxInput = packagingBoxCount;
+          const originalHandler = boxInput.onchange;
+          boxInput.onchange = null;
+          if (remainder === 0) {
+            packagingBoxCount.value = boxCount;
+          }
+          boxInput.onchange = originalHandler;
+        }
+      }
+    }
+
+    function renderPackagingList() {
+      const records = PackagingStorage.getAll();
+      if (records.length === 0) {
+        packagingListEl.innerHTML = `<div class="packaging-empty">暂无包装出货记录，使用左侧表单创建第一条出货记录</div>`;
+        return;
+      }
+      packagingListEl.innerHTML = records.map(record => {
+        const order = record.orderId ? orders.find(o => o.id === record.orderId) : null;
+        const orderProgress = order ? PackagingLogic.getOrderStatus(order.id) : null;
+        const isComplete = order && orderProgress && orderProgress.status === "completed";
+        return `
+          <div class="packaging-card ${isComplete ? "completed" : ""}">
+            <div class="packaging-head">
+              <div>
+                <strong>${record.batchHook}</strong>
+                <span class="packaging-qty-badge" style="margin-left: 10px;">${record.shippedQty}</span>
+                <span style="font-size: 12px; color: var(--muted); margin-left: 4px;">枚</span>
+              </div>
+              <div style="text-align: right;">
+                <div class="meta">${new Date(record.createdAt).toLocaleString()}</div>
+                <div class="meta">操作者：<strong style="color: var(--ink);">${record.operator}</strong></div>
+              </div>
+            </div>
+            <div class="packaging-box-info">
+              ${record.boxCount > 0 ? `<span class="packaging-tag box">${record.boxCount} 盒${record.perBoxQty > 0 ? ` × ${record.perBoxQty}枚/盒` : ""}</span>` : ""}
+              ${record.labelNo ? `<span class="packaging-tag label-no">贴标：${record.labelNo}</span>` : ""}
+              ${order ? `
+                <span class="packaging-tag order" onclick="event.stopPropagation(); switchTab('orders'); setTimeout(() => openOrderDetail('${order.id}'), 200);"
+                      style="cursor: pointer;">订单：${order.customer}（${order.hook}）</span>
+              ` : ""}
+            </div>
+            <div class="packaging-meta">
+              <div><span class="label">钢丝规格</span><span class="value">${record.batchWire}</span></div>
+              <div><span class="label">批次出货累计</span><span class="value">${PackagingStorage.getShippedQtyByBatch(record.batchId)} 枚</span></div>
+              ${order ? `
+                <div><span class="label">订单交付进度</span><span class="value">${PackagingStorage.getShippedQtyByOrder(order.id)} / ${order.targetQty} 枚（${Math.min(100, (PackagingStorage.getShippedQtyByOrder(order.id) / Number(order.targetQty) * 100)).toFixed(1)}%）</span></div>
+              ` : ""}
+            </div>
+            ${record.note ? `<div class="meta">备注：${record.note}</div>` : ""}
+            <div class="packaging-actions">
+              <button class="danger" onclick="deletePackagingRecord('${record.id}')">删除记录</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderPackagingFlow() {
+      const flows = PackagingStorage.getFlow();
+      if (flows.length === 0) {
+        packagingFlowListEl.innerHTML = `<div class="empty">暂无流水记录</div>`;
+        return;
+      }
+      const typeLabel = { create: "创建", delete: "删除" };
+      packagingFlowListEl.innerHTML = flows.slice(0, 50).map(f => `
+        <div class="packaging-flow-item ${f.type}">
+          <div>${typeLabel[f.type] || f.type} · ${f.qty > 0 ? "+" : ""}${f.qty} 枚</div>
+          <div class="wire-meta">${f.reason || ""}</div>
+          <div class="packaging-flow-time">${new Date(f.time).toLocaleString()}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderPackaging() {
+      syncPackagingLogicData();
+      renderPackagingStats();
+      refreshPackagingBatchSelect();
+      refreshPackagingOrderSelect();
+      renderPackagingList();
+      renderPackagingFlow();
+    }
+
+    function submitPackagingForm(e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(packagingForm).entries());
+      const batchId = data.batchId;
+      const shippedQty = Number(data.shippedQty);
+      const boxCount = Number(data.boxCount) || 0;
+      const perBoxQty = Number(data.perBoxQty) || 0;
+      const operator = data.operator || "";
+      const labelNo = data.labelNo || "";
+      const note = data.note || "";
+      const orderId = data.orderId || null;
+
+      const validation = PackagingLogic.validatePackagingForm(batchId, shippedQty, boxCount, perBoxQty, operator);
+      if (!validation.valid) {
+        packagingFormError.hidden = false;
+        packagingFormError.textContent = validation.errors.join("\n");
+        return;
+      }
+      packagingFormError.hidden = true;
+
+      const result = PackagingLogic.createPackaging(
+        { batchId, shippedQty, boxCount, perBoxQty, operator, labelNo, note, orderId },
+        {
+          onCreated: () => {
+            save();
+            saveOrders();
+            savePackagingAll();
+          }
+        }
+      );
+
+      if (!result.success) {
+        packagingFormError.hidden = false;
+        packagingFormError.textContent = result.error || "创建失败";
+        return;
+      }
+
+      packagingForm.reset();
+      packagingPerBoxQty.value = 50;
+      packagingBoxCount.value = 0;
+      packagingBoxHint.className = "packaging-hint";
+      packagingBoxHint.textContent = "";
+      packagingBatchInfo.innerHTML = "";
+      packagingFormError.hidden = true;
+
+      syncPackagingLogicData();
+      renderPackaging();
+      renderOrders();
+    }
+
+    function deletePackagingRecord(id) {
+      if (!confirm("确认删除这个包装出货记录？相关的批次和订单历史也会更新。")) return;
+      const result = PackagingLogic.deletePackaging(id, {
+        onDeleted: () => {
+          save();
+          saveOrders();
+          savePackagingAll();
+        }
+      });
+      if (result.success) {
+        syncPackagingLogicData();
+        renderPackaging();
+        renderOrders();
+      } else {
+        alert(result.error || "删除失败");
+      }
+    }
+
+    packagingBatchSelect.addEventListener("change", updatePackagingBatchInfo);
+    packagingShippedQty.addEventListener("input", updatePackagingBoxCalc);
+    packagingPerBoxQty.addEventListener("input", updatePackagingBoxCalc);
+    packagingBoxCount.addEventListener("change", () => {
+      const qty = Number(packagingShippedQty.value) || 0;
+      const perBox = Number(packagingPerBoxQty.value) || 0;
+      const boxes = Number(packagingBoxCount.value) || 0;
+      const hint = packagingBoxHint;
+      if (qty <= 0) {
+        hint.className = "packaging-hint";
+        hint.textContent = "请先输入出货数量";
+        return;
+      }
+      if (boxes <= 0) {
+        hint.className = "packaging-hint warn";
+        hint.textContent = "盒数为 0，请确认";
+        return;
+      }
+      if (perBox > 0 && boxes * perBox !== qty) {
+        hint.className = "packaging-hint error";
+        hint.textContent = `⚠ 盒数 × 每盒数量 = ${boxes * perBox} 枚，与出货数量 ${qty} 不一致`;
+      } else {
+        hint.className = "packaging-hint";
+        hint.textContent = `确认：${boxes} 盒${perBox > 0 ? ` × ${perBox}枚/盒 = ${boxes * perBox} 枚` : ""}`;
+      }
+    });
+    genLabelNoBtn.addEventListener("click", () => {
+      packagingLabelNo.value = PackagingLogic.generateLabelNo();
+    });
+    packagingForm.addEventListener("submit", submitPackagingForm);
+
+    window.deletePackagingRecord = deletePackagingRecord;
+    window.renderPackaging = renderPackaging;
+    window.syncPackagingLogicData = syncPackagingLogicData;
+
     refreshBatchWireOptions();
     refreshTemplateSelect();
     render();
@@ -2407,10 +2849,15 @@
       wireFlow = data.wireFlow;
       inspections = data.inspections;
       templates = data.templates;
+      packaging = data.packaging;
+      packagingFlow = data.packagingFlow;
+      PackagingStorage.init({ packaging, packagingFlow });
+      PackagingLogic.init({ batches, orders, inspections });
       render();
       renderOrders();
       renderWire();
       renderTemplates();
+      if (currentTab === "packaging") renderPackaging();
     }
 
     Scheduling.init(
@@ -2422,7 +2869,9 @@
           wireStock = result.wireStock;
           wireFlow = result.wireFlow;
           templates = result.templates;
-          Storage.saveAll({ batches, orders, wireStock, wireFlow, inspections, templates });
+          const pkgs = PackagingStorage.packaging;
+          const pkgFlow = PackagingStorage.packagingFlow;
+          Storage.saveAll({ batches, orders, wireStock, wireFlow, inspections, templates, packaging: pkgs, packagingFlow: pkgFlow });
           refreshAll();
         }
       }
